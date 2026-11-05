@@ -1,0 +1,7 @@
+{
+  "command": "gpt2",
+  "models": ["openai-community/gpt2", "openai-community/gpt2-medium", "openai-community/gpt2-large", "openai-community/gpt2-xl"],
+  "contexts": [128, 512, 1024],
+  "token_budget": 32768,
+  "arguments": ["--bootstrap-replicates", "1000"]
+}
