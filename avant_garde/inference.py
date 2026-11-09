@@ -17,6 +17,11 @@ from .mx9 import (MODES, MXINT_BLOCKS, MX9Config, quantize_mx9, quantize_mxint8,
 
 
 class MX9Inference(TorchDispatchMode):
+    CHUNK_ELEMENTS = 1 << 25
+    FAMILIES = ("gpt2", "vit", "qwen3")
+    # Products inside these modules are not tensor-core operand GEMMs (Qwen3's RoPE
+    # computes inv_freq @ positions); they stay in FP32 and are not counted.
+    FP32_MODULES = re.compile(r"rotary_emb")
     def __init__(self, model, mode="mx9_flattened", config=MX9Config(),
                  weights_only=False, exempt=None, exempt_mode="mx9_hierarchical"):
         super().__init__()
@@ -63,6 +68,25 @@ class MX9Inference(TorchDispatchMode):
                      axis, x._version, mode) if is_weight else None
         if is_weight and cache_key in self.cache:
             return self.cache[cache_key]
+        result = self._convert(x, axis, mode, label)
+        if is_weight:
+            self.cache[cache_key] = result
+        return result
+
+    def _convert(self, x, axis, mode, label):
+        """Quantize (and flatten) then dequantize; chunk very large operands.
+
+        Blocks run along `axis` only, so splitting along another dimension is exact.
+        It bounds the FP64 codec temporaries (e.g. a 152k-vocabulary LM head or
+        long-context attention scores) to about CHUNK_ELEMENTS elements each.
+        """
+        axis %= x.ndim
+        others = [d for d in range(x.ndim) if d != axis and x.shape[d] > 1]
+        if x.numel() > self.CHUNK_ELEMENTS and others:
+            dim = max(others, key=lambda d: x.shape[d])
+            step = max(1, x.shape[dim] * self.CHUNK_ELEMENTS // x.numel())
+            return torch.cat([self._convert(part, axis, mode, label)
+                              for part in x.split(step, dim)], dim)
         if mode in MXINT_BLOCKS:
             q = quantize_mxint8(x, axis, MXINT_BLOCKS[mode], self.config.rounding)
         else:
@@ -71,14 +95,13 @@ class MX9Inference(TorchDispatchMode):
         if mode in ("mx9_flattened", "mx9_lossless"):
             q = flatten_mx9(q, self.config, lossless=mode == "mx9_lossless")
             self._record(label + ":flatten", q.stats)
-        result = dequantize(q)
-        if is_weight:
-            self.cache[cache_key] = result
-        return result
+        return dequantize(q)
 
     def __torch_dispatch__(self, func, types, args=(), kwargs=None):
         kwargs = kwargs or {}
         name = str(func)
+        if self.stack and self.FP32_MODULES.search(self.stack[-1]):
+            return func(*args, **kwargs)
         if "scaled_dot_product" in name or "flash_attention" in name:
             raise RuntimeError("Fused attention bypasses MX9 operands; select eager attention")
         if name == "aten.linear.default":
@@ -154,8 +177,8 @@ class MX9Inference(TorchDispatchMode):
     def check_coverage(self, forwards):
         """Fail if a new backend silently bypasses expected attention operands."""
         family = getattr(self.model.config, "model_type", None)
-        if family not in ("gpt2", "vit"):
-            raise ValueError("Coverage validation supports GPT-2 and ViT only")
+        if family not in self.FAMILIES:
+            raise ValueError(f"Coverage validation supports {', '.join(self.FAMILIES)} only")
         layers = self.model.config.num_hidden_layers
         attention_products = sum(count for key, count in self.coverage.items()
                                  if key.endswith(("aten.matmul.default", "aten.bmm.default",

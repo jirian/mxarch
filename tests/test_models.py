@@ -115,3 +115,36 @@ def test_exempt_modules_use_fallback_mode():
     head, report = run(exempt=r"^lm_head$", exempt_mode="mx9_hierarchical")
     assert set(report["exempted_calls"]) == {"lm_head"}
     assert not torch.equal(head, flattened)
+
+
+def test_chunked_conversion_matches_unchunked():
+    model, inputs = make_model("gpt2")
+    outputs = []
+    for chunk in (1 << 25, 64):
+        adapter = MX9Inference(model, "mx9_flattened")
+        adapter.CHUNK_ELEMENTS = chunk
+        with adapter.apply():
+            outputs.append(model(**inputs).logits)
+        report = adapter.report()
+    torch.testing.assert_close(outputs[0], outputs[1], rtol=0, atol=0)
+    assert all(s["elements"] > 0 for s in report["diagnostics"].values())
+
+
+def test_qwen3_coverage_keeps_rotary_in_fp32():
+    transformers = pytest.importorskip("transformers")
+    if not hasattr(transformers, "Qwen3Config"):
+        pytest.skip("Qwen3 needs transformers >= 4.51")
+    torch.manual_seed(0)
+    config = transformers.Qwen3Config(vocab_size=64, hidden_size=32, intermediate_size=64,
+                                      num_hidden_layers=2, num_attention_heads=4,
+                                      num_key_value_heads=2, head_dim=8,
+                                      max_position_embeddings=64, attn_implementation="eager")
+    model = transformers.Qwen3ForCausalLM(config).eval()
+    ids = torch.randint(0, 64, (2, 16))
+    for mode in ("fp32", "mx9_flattened"):
+        adapter = MX9Inference(model, mode)
+        with adapter.apply():
+            assert torch.isfinite(model(input_ids=ids, use_cache=False).logits).all()
+        adapter.check_coverage(1)
+        assert not any("rotary" in key for key in adapter.report()["coverage"])
+        assert not any("rotary" in key for key in adapter.report()["diagnostics"])

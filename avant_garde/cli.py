@@ -79,8 +79,8 @@ def gpt2(args):
     model = AutoModelForCausalLM.from_pretrained(
         args.model, revision=args.revision, local_files_only=args.offline,
         attn_implementation="eager", torch_dtype=torch.float32).eval().to(args.device)
-    if model.config.model_type != "gpt2":
-        raise ValueError("This runner validates GPT-2 models only")
+    if model.config.model_type not in ("gpt2", "qwen3"):
+        raise ValueError("This runner validates GPT-2 and Qwen3 models only")
     if args.context > model.config.max_position_embeddings:
         raise ValueError("Context exceeds checkpoint positional embedding capacity")
     if args.text_file:
