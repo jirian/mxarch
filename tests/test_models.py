@@ -148,3 +148,15 @@ def test_qwen3_coverage_keeps_rotary_in_fp32():
         adapter.check_coverage(1)
         assert not any("rotary" in key for key in adapter.report()["coverage"])
         assert not any("rotary" in key for key in adapter.report()["diagnostics"])
+
+
+def test_uncached_weights_match_cached():
+    model, inputs = make_model("gpt2")
+    outputs = []
+    for cache in (True, False):
+        adapter = MX9Inference(model, "mx9_flattened", cache_weights=cache)
+        with adapter.apply():
+            outputs.append(model(**inputs).logits)
+        adapter.check_coverage(1)
+        assert (len(adapter.cache) > 0) == cache
+    torch.testing.assert_close(outputs[0], outputs[1], rtol=0, atol=0)

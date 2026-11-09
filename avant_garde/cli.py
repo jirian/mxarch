@@ -78,9 +78,12 @@ def gpt2(args):
                                               local_files_only=args.offline)
     model = AutoModelForCausalLM.from_pretrained(
         args.model, revision=args.revision, local_files_only=args.offline,
-        attn_implementation="eager", torch_dtype=torch.float32).eval().to(args.device)
-    if model.config.model_type not in ("gpt2", "qwen3"):
-        raise ValueError("This runner validates GPT-2 and Qwen3 models only")
+        attn_implementation="eager", torch_dtype=torch.float32,
+        device_map=args.device_map).eval()
+    if args.device_map is None:
+        model = model.to(args.device)
+    if model.config.model_type not in ("gpt2", "qwen3", "qwen3_moe"):
+        raise ValueError("This runner validates GPT-2 and Qwen3 (dense, MoE) models only")
     if args.context > model.config.max_position_embeddings:
         raise ValueError("Context exceeds checkpoint positional embedding capacity")
     if args.text_file:
@@ -105,7 +108,7 @@ def gpt2(args):
     for mode in args.modes:
         print(f"GPT-2 {args.model} {mode}: {len(windows)} windows", flush=True)
         adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits), args.weights_only,
-                               args.exempt, args.exempt_mode)
+                               args.exempt, args.exempt_mode, cache_weights=not args.no_weight_cache)
         started = time.monotonic()
         with adapter.apply():
             metrics = perplexity(model, windows, args.device)
@@ -215,6 +218,9 @@ def parser():
             sub.add_argument("--revision", default="main")
         if name == "gpt2":
             sub.add_argument("--text-file")
+            sub.add_argument("--device-map", help="e.g. auto: spread a large model over GPUs")
+            sub.add_argument("--no-weight-cache", action="store_true",
+                             help="Re-quantize weights on each use instead of caching them")
             sub.add_argument("--dataset-revision", default="main")
             sub.add_argument("--context", type=int, default=128)
             sub.add_argument("--windows", type=int, default=32)

@@ -18,12 +18,13 @@ from .mx9 import (MODES, MXINT_BLOCKS, MX9Config, quantize_mx9, quantize_mxint8,
 
 class MX9Inference(TorchDispatchMode):
     CHUNK_ELEMENTS = 1 << 25
-    FAMILIES = ("gpt2", "vit", "qwen3")
+    FAMILIES = ("gpt2", "vit", "qwen3", "qwen3_moe")
     # Products inside these modules are not tensor-core operand GEMMs (Qwen3's RoPE
     # computes inv_freq @ positions); they stay in FP32 and are not counted.
     FP32_MODULES = re.compile(r"rotary_emb")
     def __init__(self, model, mode="mx9_flattened", config=MX9Config(),
-                 weights_only=False, exempt=None, exempt_mode="mx9_hierarchical"):
+                 weights_only=False, exempt=None, exempt_mode="mx9_hierarchical",
+                 cache_weights=True):
         super().__init__()
         if mode not in MODES or exempt_mode not in MODES:
             raise ValueError(f"Unknown mode {mode}")
@@ -36,6 +37,9 @@ class MX9Inference(TorchDispatchMode):
         self.weights = {p.untyped_storage().data_ptr(): name
                         for name, p in model.named_parameters()}
         self.cache = {}
+        # Without the cache, weights are re-quantized on every use (same values, less memory).
+        self.cache_weights = cache_weights
+        self.converted_weights = 0
         self.stats = {}
         self.coverage = Counter()
         self.stack = []
@@ -66,11 +70,13 @@ class MX9Inference(TorchDispatchMode):
         # A transposed view needs a distinct reduction-axis quantization.
         cache_key = (ptr, x.storage_offset(), tuple(x.shape), tuple(x.stride()),
                      axis, x._version, mode) if is_weight else None
-        if is_weight and cache_key in self.cache:
+        if is_weight and self.cache_weights and cache_key in self.cache:
             return self.cache[cache_key]
         result = self._convert(x, axis, mode, label)
         if is_weight:
-            self.cache[cache_key] = result
+            self.converted_weights += 1
+            if self.cache_weights:
+                self.cache[cache_key] = result
         return result
 
     def _convert(self, x, axis, mode, label):
@@ -172,6 +178,7 @@ class MX9Inference(TorchDispatchMode):
             "diagnostics": {key: {name: value.item() for name, value in stats.items()}
                             for key, stats in self.stats.items()},
             "cached_weight_views": len(self.cache),
+            "converted_weight_views": self.converted_weights,
         }
 
     def check_coverage(self, forwards):
@@ -191,7 +198,7 @@ class MX9Inference(TorchDispatchMode):
                           if key.endswith(("aten.convolution.default", "aten.conv2d.default")))
             if patches != forwards:
                 raise RuntimeError("Incomplete ViT patch projection coverage")
-        if self.mode != "fp32" and not self.cache:
+        if self.mode != "fp32" and not self.converted_weights:
             raise RuntimeError("No weights were quantized")
 
 

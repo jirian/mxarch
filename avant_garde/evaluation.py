@@ -22,7 +22,7 @@ def perplexity(model, windows, device):
             ids = window.unsqueeze(0).to(device)
             logits = model(input_ids=ids, use_cache=False).logits
             loss = torch.nn.functional.cross_entropy(
-                logits[:, :-1].reshape(-1, logits.shape[-1]), ids[:, 1:].reshape(-1),
+                logits[:, :-1].reshape(-1, logits.shape[-1]), ids[:, 1:].reshape(-1).to(logits.device),
                 reduction="sum")
             if not bool(torch.isfinite(loss)):
                 raise RuntimeError("Nonfinite language-model loss")
