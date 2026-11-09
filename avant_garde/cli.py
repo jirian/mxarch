@@ -14,7 +14,7 @@ import torch
 
 from .evaluation import classification, perplexity, token_windows
 from .inference import MX9Inference, configure_fp32
-from .mx9 import MODES, MX9Config
+from .mx9 import DEFAULT_MODES, MODES, MX9Config
 from .uncertainty import add_uncertainty
 
 
@@ -58,7 +58,7 @@ def tiny_vit(args):
     reports, outputs = [], {}
     for mode in args.modes:
         adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits),
-                               args.weights_only)
+                               args.weights_only, args.exempt, args.exempt_mode)
         with adapter.apply():
             result = model(pixel_values=pixels).logits
         adapter.check_coverage(1)
@@ -104,7 +104,8 @@ def gpt2(args):
     runs = []
     for mode in args.modes:
         print(f"GPT-2 {args.model} {mode}: {len(windows)} windows", flush=True)
-        adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits), args.weights_only)
+        adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits), args.weights_only,
+                               args.exempt, args.exempt_mode)
         started = time.monotonic()
         with adapter.apply():
             metrics = perplexity(model, windows, args.device)
@@ -159,7 +160,8 @@ def vit(args):
     runs = []
     for mode in args.modes:
         print(f"ViT {args.model} {mode}: {len(rows)} images", flush=True)
-        adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits), args.weights_only)
+        adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits), args.weights_only,
+                               args.exempt, args.exempt_mode)
         with adapter.apply():
             metrics = classification(model, batches(), args.device)
         adapter.check_coverage((len(rows) + args.batch_size - 1) // args.batch_size)
@@ -197,10 +199,12 @@ def parser():
     for name in ("gpt2", "vit", "smoke-vit"):
         sub = commands.add_parser(name)
         sub.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
-        sub.add_argument("--modes", nargs="+", choices=MODES, default=list(MODES))
+        sub.add_argument("--modes", nargs="+", choices=MODES, default=list(DEFAULT_MODES))
         sub.add_argument("--rounding", choices=("even", "nearest", "trunc"), default="even")
         sub.add_argument("--flattened-bits", type=int, default=8)
         sub.add_argument("--weights-only", action="store_true")
+        sub.add_argument("--exempt", help="Regex of module names that use --exempt-mode")
+        sub.add_argument("--exempt-mode", choices=MODES, default="mx9_hierarchical")
         sub.add_argument("--offline", action="store_true")
         sub.add_argument("--seed", type=int, default=0)
         sub.add_argument("--output", required=True)

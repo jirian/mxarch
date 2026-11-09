@@ -115,3 +115,35 @@ def test_blockwise_reference_matmul(lossless):
     expected = reference_matmul(a, b)
     actual = dequantize(a).double() @ dequantize(b).double()
     torch.testing.assert_close(actual, expected, rtol=0, atol=0)
+
+
+@pytest.mark.parametrize("block_size", [16, 32])
+@pytest.mark.parametrize("rounding", ["even", "nearest", "trunc"])
+def test_mxint8_against_scalar_reference(block_size, rounding):
+    from avant_garde.mx9 import quantize_mxint8
+    torch.manual_seed(2)
+    x = torch.cat([torch.tensor([1.9999998807907104, -0.75, 0., 3e-3]), torch.randn(71) * 4])
+    rnd = {"even": round, "nearest": lambda v: math.copysign(math.floor(abs(v) + .5), v),
+           "trunc": math.trunc}[rounding]
+    expected = []
+    values = x.tolist()
+    for start in range(0, len(values), block_size):
+        block = values[start:start + block_size]
+        maximum = max(map(abs, block))
+        outer = max(-127, min(127, (math.frexp(maximum)[1] - 1 if maximum else 0) - 6))
+        expected += [math.ldexp(max(-127, min(127, rnd(math.ldexp(v, -outer)))), outer)
+                     for v in block]
+    q = quantize_mxint8(x, block_size=block_size, rounding=rounding)
+    assert q.micro_exp is None
+    assert dequantize(q, torch.float64).tolist() == expected
+
+
+def test_mxint8_b16_matches_mx9_without_microexponents():
+    from avant_garde.mx9 import quantize_mxint8
+    # Every pair holds a value in the block's top binade, so all micro exponents are 0.
+    x = (torch.rand(4, 64) + 1.) * torch.where(torch.rand(4, 64) < .5, -1., 1.)
+    x[:, 1::2] *= torch.rand(4, 32)
+    hierarchical = quantize_mx9(x)
+    assert int(hierarchical.micro_exp.abs().sum()) == 0
+    torch.testing.assert_close(dequantize(quantize_mxint8(x, block_size=16, rounding="even")),
+                               dequantize(hierarchical), rtol=0, atol=0)

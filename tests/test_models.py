@@ -98,3 +98,20 @@ def test_training_rejected():
     with pytest.raises(ValueError, match="eval"):
         with MX9Inference(torch.nn.Linear(2, 2)).apply():
             pass
+
+
+def test_exempt_modules_use_fallback_mode():
+    model, inputs = make_model("gpt2")
+    with torch.inference_mode():
+        baseline = model(**inputs).logits
+    def run(**kwargs):
+        adapter = MX9Inference(model, "mx9_flattened", **kwargs)
+        with adapter.apply():
+            return model(**inputs).logits, adapter.report()
+    everything, report = run(exempt=".", exempt_mode="fp32")
+    torch.testing.assert_close(everything, baseline, rtol=0, atol=0)
+    assert report["exempted_calls"]
+    flattened, _ = run()
+    head, report = run(exempt=r"^lm_head$", exempt_mode="mx9_hierarchical")
+    assert set(report["exempted_calls"]) == {"lm_head"}
+    assert not torch.equal(head, flattened)

@@ -10,8 +10,14 @@ from typing import Literal
 import torch
 import torch.nn.functional as F
 
-Mode = Literal["fp32", "mx9_hierarchical", "mx9_flattened", "mx9_lossless"]
-MODES = ("fp32", "mx9_hierarchical", "mx9_flattened", "mx9_lossless")
+Mode = Literal["fp32", "mx9_hierarchical", "mx9_flattened", "mx9_lossless",
+               "mxint8", "mxint8_b16"]
+MODES = ("fp32", "mx9_hierarchical", "mx9_flattened", "mx9_lossless",
+         "mxint8", "mxint8_b16")
+DEFAULT_MODES = MODES[:4]
+# Single-level references: OCP MXINT8 (32-element blocks) and the same code
+# grid over MX9's 16-element blocks, i.e. direct single-rounding flattening.
+MXINT_BLOCKS = {"mxint8": 32, "mxint8_b16": 16}
 
 
 @dataclass(frozen=True)
@@ -53,12 +59,12 @@ def _round(x, rounding):
     return torch.trunc(x)
 
 
-def _mask(shape, axis, blocks, device):
+def _mask(shape, axis, blocks, device, block_size=16):
     moved = list(shape)
     length = moved.pop(axis)
-    moved.append(blocks * 16)
-    valid = torch.arange(blocks * 16, device=device) < length
-    return valid.expand(moved).reshape(*moved[:-1], blocks, 16)
+    moved.append(blocks * block_size)
+    valid = torch.arange(blocks * block_size, device=device) < length
+    return valid.expand(moved).reshape(*moved[:-1], blocks, block_size)
 
 
 def quantize_mx9(x: torch.Tensor, axis: int = -1,
@@ -104,6 +110,47 @@ def quantize_mx9(x: torch.Tensor, axis: int = -1,
     }
     return MX9Tensor(clipped.to(torch.int8), outer.to(torch.int16),
                      micro.to(torch.int8), tuple(x.shape), axis, stats)
+
+
+def quantize_mxint8(x: torch.Tensor, axis: int = -1, block_size: int = 32,
+                    rounding: str = "nearest") -> MX9Tensor:
+    """Single-level MXINT8: one 8-bit scale per block, codes in [-127,127].
+
+    Matches OCP MXINT8 (implicit 2**-6 element scale) with microxcaling's
+    symmetric clamp. The outer exponent convention equals quantize_mx9's.
+    """
+    if not x.is_floating_point() or x.ndim == 0 or x.numel() == 0:
+        raise ValueError("Expected a nonempty floating-point tensor with rank >= 1")
+    if not bool(torch.isfinite(x).all()):
+        raise ValueError("Nonfinite MXINT8 input")
+    axis %= x.ndim
+    values = x.detach().movedim(axis, -1).to(torch.float64)
+    values = F.pad(values, (0, (-values.shape[-1]) % block_size))
+    blocks = values.reshape(*values.shape[:-1], -1, block_size)
+    maximum = blocks.abs().amax(-1, keepdim=True)
+    raw_exp = torch.frexp(maximum).exponent - 1
+    raw_exp = torch.where(maximum == 0, 0, raw_exp)
+    outer_unclamped = raw_exp - 6
+    outer = outer_unclamped.clamp(-127, 127)
+    scaled = torch.ldexp(blocks, -outer)
+    rounded = _round(scaled, rounding)
+    clipped = rounded.clamp(-127, 127)
+    valid = _mask(tuple(x.shape), axis, blocks.shape[-2], x.device, block_size)
+    error = (torch.ldexp(clipped, outer) - blocks).abs()
+    stats = {
+        "elements": valid.sum(),
+        "rounding_changed": ((rounded != scaled) & valid).sum(),
+        "rounded_to_zero": ((blocks != 0) & (clipped == 0) & valid).sum(),
+        "out_of_range": ((scaled.abs() > 127) & valid).sum(),
+        "saturated": ((rounded.abs() > 127) & valid).sum(),
+        "scale_clamped_blocks": (outer_unclamped != outer).sum(),
+        "nonfinite": torch.zeros((), device=x.device, dtype=torch.int64),
+        "abs_error_sum": (error * valid).sum(),
+        "squared_error_sum": (error.square() * valid).sum(),
+        "max_abs_error": (error * valid).amax(),
+    }
+    return MX9Tensor(clipped.to(torch.int8), outer.to(torch.int16), None,
+                     tuple(x.shape), axis, stats)
 
 
 def flatten_mx9(x: MX9Tensor, config: MX9Config = MX9Config(),
