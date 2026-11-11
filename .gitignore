@@ -5,3 +5,4 @@ build/
 dist/
 slurm-*.out
 results/
+*.pdf

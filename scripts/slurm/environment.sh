@@ -5,7 +5,7 @@ test -x "$AVANT_GARDE_PYTHON"
 test -f avant_garde/cli.py
 export PYTHONPATH="$PWD${PYTHONPATH:+:$PYTHONPATH}"
 # AVANT_GARDE_SCRATCH remains a legacy override for the persistent data root.
-export AVANT_GARDE_DATA_ROOT="${AVANT_GARDE_DATA_ROOT:-${AVANT_GARDE_SCRATCH:-/scratch/$USER/avant-garde-reproduction}}"
+export AVANT_GARDE_DATA_ROOT="${AVANT_GARDE_DATA_ROOT:-${AVANT_GARDE_SCRATCH:-/work/cs-471/mixedprecisionarchitects/avant-garde-reproduction}}"
 # Preserve the login token path before relocating caches. Never copy tokens to
 # shared cache or result folders.
 if [[ -z "${HF_TOKEN_PATH:-}" ]]; then
@@ -20,7 +20,7 @@ fi
 export HF_HOME="$AVANT_GARDE_DATA_ROOT/huggingface"
 export HF_HUB_CACHE="$HF_HOME/hub"
 export HF_DATASETS_CACHE="$AVANT_GARDE_DATA_ROOT/datasets"
-export TMPDIR="${AVANT_GARDE_TMP_ROOT:-/scratch/$USER/avant-garde-reproduction/tmp}/${SLURM_JOB_ID:?Run inside a Slurm job}"
+export TMPDIR="${AVANT_GARDE_TMP_ROOT:-$AVANT_GARDE_DATA_ROOT/tmp}/${SLURM_JOB_ID:?Run inside a Slurm job}"
 export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-6}"
 export TOKENIZERS_PARALLELISM=false
 mkdir -p "$HF_HOME" "$HF_HUB_CACHE" "$HF_DATASETS_CACHE" "$TMPDIR"

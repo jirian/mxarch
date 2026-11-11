@@ -23,6 +23,11 @@ def rows(paths):
                 "source": str(path), "model": report["model"], "parameters": report["parameters"],
                 "context": report["metadata"]["arguments"].get("context", ""),
                 "mode": mode, "metric": metric, "value": value,
+                "numerical_backend": run.get("numerical_backend", "native_fp32" if mode == "fp32" else "dequantized"),
+                "numerical_contract": run.get("numerical_contract", "native-fp32-v1" if mode == "fp32" else "dequantized-gemm-v1"),
+                "exponent_overflow": run.get("exponent_overflow"),
+                "activation_policy": run.get("activation_policy", "fp32"),
+                "flatten_rounding": run.get("config", {}).get("flatten_rounding", run.get("config", {}).get("rounding", "even")),
                 "normalized_to_fp32": value / baseline if baseline else None,
                 "std": run.get("uncertainty", {}).get(metric + "_std"),
                 "normalized_std": run.get("uncertainty", {}).get(metric + "_normalized_std"),
@@ -69,6 +74,12 @@ def bar_figure(data):
             if row["context"] != "":
                 label += f"\ncontext {row['context']}"
             label += "\nweights only" if row["weights_only"] else "\nweights + activations"
+            quantized = group.get("mx9_flattened", group.get("mx9_hierarchical", row))
+            label += "\n" + quantized.get("numerical_backend", "dequantized")
+            if quantized.get("numerical_backend") == "figure8":
+                label += f" ({quantized.get('exponent_overflow', 'error')})"
+            label += f"\nactivations: {quantized.get('activation_policy', 'fp32')}"
+            label += f"; flatten: {quantized.get('flatten_rounding', 'even')}"
             labels.append(label)
         for j, (mode, label, color) in enumerate(series):
             positions = [k + (j - 1) * .25 for k in range(len(groups))]

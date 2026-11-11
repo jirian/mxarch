@@ -22,10 +22,13 @@ class MX9Config:
     pair_size: int = 2
     exponent_min: int = -127
     exponent_max: int = 127
+    flatten_rounding: str = "trunc"
 
     def __post_init__(self):
         if self.rounding not in ("even", "nearest", "trunc"):
             raise ValueError("rounding must be even, nearest, or trunc")
+        if self.flatten_rounding not in ("even", "nearest", "trunc"):
+            raise ValueError("flatten_rounding must be even, nearest, or trunc")
         if self.flattened_bits < 2 or self.flattened_bits > 16:
             raise ValueError("flattened_bits must be between 2 and 16")
         if (self.block_size, self.pair_size) != (16, 2):
@@ -106,16 +109,37 @@ def quantize_mx9(x: torch.Tensor, axis: int = -1,
                      micro.to(torch.int8), tuple(x.shape), axis, stats)
 
 
+def operand_transform(x: MX9Tensor) -> torch.Tensor:
+    """Figure 7 multiplier outputs, before temporal-register quantization.
+
+    Multiplier j applies scale j to elements 2*j and 2*j+1 in two passes.
+    Return exact fixed-point products; retain the outer scale separately.
+    """
+    if x.micro_exp is None:
+        raise ValueError("Operand is already flattened")
+    pairs = x.elements.double().reshape(*x.elements.shape[:-1], 8, 2)
+    return torch.ldexp(pairs, x.micro_exp.int().unsqueeze(-1)).reshape(x.elements.shape)
+
+
 def flatten_mx9(x: MX9Tensor, config: MX9Config = MX9Config(),
                 lossless: bool = False) -> MX9Tensor:
     if x.micro_exp is None:
         raise ValueError("Operand is already flattened")
-    micro = x.micro_exp.repeat_interleave(2, -1).to(torch.int32)
     # Exact half-integers, then one rounding into the retained outer-scale grid.
-    absorbed = torch.ldexp(x.elements.to(torch.float64), micro)
+    absorbed = operand_transform(x)
     fractional_bits = 1 if lossless else 0
     scaled = absorbed * (2 ** fractional_bits)
-    rounded = scaled if lossless else _round(scaled, config.rounding)
+    if lossless:
+        rounded = scaled
+    elif config.flatten_rounding == "trunc":
+        # MX9 has a sign and magnitude: discard low MAGNITUDE bits. An
+        # arithmetic right shift of a negative two's-complement code would
+        # instead round toward minus infinity and introduce a different bias.
+        codes = x.elements.to(torch.int32)
+        shift = -x.micro_exp.repeat_interleave(2, -1).int()
+        rounded = (codes.sign() * torch.bitwise_right_shift(codes.abs(), shift)).double()
+    else:
+        rounded = _round(scaled, config.flatten_rounding)
     limit = 255 if lossless else (2 ** (config.flattened_bits - 1) - 1)
     clipped = rounded.clamp(-limit, limit)
     valid = _mask(x.shape, x.axis, x.elements.shape[-2], x.elements.device)
@@ -147,6 +171,22 @@ def dequantize(x: MX9Tensor, dtype: torch.dtype = torch.float32) -> torch.Tensor
     moved_shape.pop(x.axis)
     values = values.reshape(*moved_shape, -1)[..., :length]
     return values.movedim(-1, x.axis).to(dtype)
+
+
+def unflatten_mx9(x: MX9Tensor | torch.Tensor, axis: int | None = None,
+                  config: MX9Config = MX9Config()) -> MX9Tensor:
+    """Rebuild the hierarchy from CURRENT values, as in the paper's unflatten API.
+
+    Group elements, select block/pair scales from their maxima, and encode.
+    This cannot restore bits previously discarded by flattening. Floating
+    tensor-core/CUDA-core results enter the same conversion directly.
+    """
+    if isinstance(x, MX9Tensor):
+        if x.micro_exp is not None:
+            raise ValueError("Expected flattened MX9 or floating-point results")
+        axis = x.axis if axis is None else axis
+        x = dequantize(x, torch.float64)
+    return quantize_mx9(x, -1 if axis is None else axis, config)
 
 
 def reference_matmul(a: MX9Tensor, b: MX9Tensor) -> torch.Tensor:

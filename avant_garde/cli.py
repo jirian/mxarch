@@ -20,10 +20,10 @@ from .uncertainty import add_uncertainty
 
 def data_paths():
     root = Path(os.environ.get("AVANT_GARDE_DATA_ROOT", os.environ.get(
-        "AVANT_GARDE_SCRATCH", f"/scratch/{os.environ.get('USER', 'unknown')}/avant-garde-reproduction")))
+        "AVANT_GARDE_SCRATCH", "/work/cs-471/mixedprecisionarchitects/avant-garde-reproduction")))
     for name in ("HF_HOME", "HF_DATASETS_CACHE", "TMPDIR"):
         suffix = {"HF_HOME": "huggingface", "HF_DATASETS_CACHE": "datasets", "TMPDIR": "tmp"}[name]
-        default = (Path(f"/scratch/{os.environ.get('USER', 'unknown')}/avant-garde-reproduction/tmp")
+        default = (Path(os.environ.get("AVANT_GARDE_TMP_ROOT", str(root / "tmp")))
                    if name == "TMPDIR" else root / suffix)
         os.environ.setdefault(name, str(default))
         Path(os.environ[name]).mkdir(parents=True, exist_ok=True)
@@ -57,8 +57,8 @@ def tiny_vit(args):
     pixels = torch.randn(2, 3, 16, 16, device=args.device)
     reports, outputs = [], {}
     for mode in args.modes:
-        adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits),
-                               args.weights_only)
+        adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits, flatten_rounding=args.flatten_rounding),
+                               args.weights_only, args.backend, args.exponent_overflow, args.activation_policy)
         with adapter.apply():
             result = model(pixel_values=pixels).logits
         adapter.check_coverage(1)
@@ -104,7 +104,8 @@ def gpt2(args):
     runs = []
     for mode in args.modes:
         print(f"GPT-2 {args.model} {mode}: {len(windows)} windows", flush=True)
-        adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits), args.weights_only)
+        adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits, flatten_rounding=args.flatten_rounding),
+                               args.weights_only, args.backend, args.exponent_overflow, args.activation_policy)
         started = time.monotonic()
         with adapter.apply():
             metrics = perplexity(model, windows, args.device)
@@ -159,12 +160,17 @@ def vit(args):
     runs = []
     for mode in args.modes:
         print(f"ViT {args.model} {mode}: {len(rows)} images", flush=True)
-        adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits), args.weights_only)
+        adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits, flatten_rounding=args.flatten_rounding),
+                               args.weights_only, args.backend, args.exponent_overflow, args.activation_policy)
         with adapter.apply():
             metrics = classification(model, batches(), args.device)
         adapter.check_coverage((len(rows) + args.batch_size - 1) // args.batch_size)
         runs.append({**adapter.report(), "metrics": metrics})
         del adapter
+    by_mode = {run["mode"]: run["metrics"] for run in runs}
+    if "mx9_hierarchical" in by_mode and "mx9_lossless" in by_mode:
+        if by_mode["mx9_hierarchical"] != by_mode["mx9_lossless"]:
+            raise RuntimeError("Hierarchical and lossless ViT metrics differ")
     return {"experiment": "vit_accuracy", "model": args.model,
             "checkpoint_commit": getattr(model.config, "_commit_hash", None),
             "processor": processor.to_dict(),
@@ -199,7 +205,15 @@ def parser():
         sub.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
         sub.add_argument("--modes", nargs="+", choices=MODES, default=list(MODES))
         sub.add_argument("--rounding", choices=("even", "nearest", "trunc"), default="even")
+        sub.add_argument("--flatten-rounding", choices=("even", "nearest", "trunc"), default="trunc",
+                         help="Secondary-scale removal; trunc shifts signed magnitudes toward zero")
+        sub.add_argument("--activation-policy", choices=("hierarchical", "fp32"), default="hierarchical",
+                         help="Rebuild MX9 at activation boundaries, or keep FP32 between GEMMs")
         sub.add_argument("--flattened-bits", type=int, default=8)
+        sub.add_argument("--backend", choices=("figure8", "dequantized"), default="figure8",
+                         help="Explicit block dot/scale/accumulate, or the legacy FP32 GEMM")
+        sub.add_argument("--exponent-overflow", choices=("error", "wrap", "wide"), default="wide",
+                         help="Retain mathematical exponent sums by default; error/wrap are sensitivity policies")
         sub.add_argument("--weights-only", action="store_true")
         sub.add_argument("--offline", action="store_true")
         sub.add_argument("--seed", type=int, default=0)

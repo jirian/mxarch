@@ -36,6 +36,8 @@ def test_offline_local_runners_and_summary(tmp_path, monkeypatch):
     main()
     report = json.loads(gpt_out.read_text())
     assert len(report["runs"]) == 4
+    assert all(run["numerical_backend"] == ("native_fp32" if run["mode"] == "fp32" else "figure8")
+               for run in report["runs"])
     assert all("perplexity_std" in run["uncertainty"] for run in report["runs"])
     assert all(run["metrics"]["scored_tokens"] == 14 for run in report["runs"])
     modes = {run["mode"]: run["metrics"] for run in report["runs"]}

@@ -5,6 +5,7 @@ from transformers import (GPT2Config, GPT2LMHeadModel, ViTConfig,
 
 from avant_garde.inference import MX9Inference, configure_fp32
 from avant_garde.mx9 import MODES, dequantize, quantize_mx9
+from avant_garde.tensor_core import figure8_mma
 
 
 @pytest.fixture(autouse=True)
@@ -71,8 +72,8 @@ def test_model_parity_coverage_and_unchanged_parameters(family):
 def test_linear_matches_manual_quantization_and_weight_cache():
     model = torch.nn.Linear(19, 7).eval()
     x = torch.randn(3, 19)
-    expected = torch.nn.functional.linear(dequantize(quantize_mx9(x)),
-                                            dequantize(quantize_mx9(model.weight)), model.bias)
+    expected = figure8_mma(quantize_mx9(x), quantize_mx9(model.weight.T, -2), model.bias)
+    expected = dequantize(quantize_mx9(expected))
     adapter = MX9Inference(model, "mx9_hierarchical")
     with adapter.apply():
         result = model(x)
@@ -98,3 +99,36 @@ def test_training_rejected():
     with pytest.raises(ValueError, match="eval"):
         with MX9Inference(torch.nn.Linear(2, 2)).apply():
             pass
+
+
+def test_legacy_backend_and_effective_backend_reports():
+    model = torch.nn.Linear(19, 7).eval()
+    x = torch.randn(3, 19)
+    expected = torch.nn.functional.linear(dequantize(quantize_mx9(x)),
+                                          dequantize(quantize_mx9(model.weight)), model.bias)
+    adapter = MX9Inference(model, "mx9_hierarchical", backend="dequantized", activation_policy="fp32")
+    with adapter.apply():
+        actual = model(x)
+    torch.testing.assert_close(actual, expected, rtol=0, atol=0)
+    assert adapter.report()["numerical_backend"] == "dequantized"
+    assert MX9Inference(model, weights_only=True).report()["numerical_backend"] == "dequantized"
+    assert MX9Inference(model, "fp32").report()["numerical_backend"] == "native_fp32"
+    assert MX9Inference(model).report()["numerical_contract"] == "figure7-8-mx9-v2"
+
+
+@pytest.mark.parametrize("batched", [False, True])
+@pytest.mark.parametrize("alpha,beta", [(1, 1), (1, 0), (2, .5)])
+def test_dispatch_addmm_bias_and_blas_scalars(batched, alpha, beta):
+    model = torch.nn.Identity().eval()
+    a = torch.randn((2, 3, 35) if batched else (3, 35))
+    b = torch.randn((2, 35, 4) if batched else (35, 4))
+    bias = torch.full((4,), float("nan")) if beta == 0 else torch.randn(4)
+    qa, qb = quantize_mx9(a), quantize_mx9(b, -2)
+    if alpha == 1:
+        expected = figure8_mma(qa, qb, bias * beta if beta else None)
+    else:
+        expected = figure8_mma(qa, qb) * alpha + bias * beta
+    adapter = MX9Inference(model, "mx9_hierarchical", activation_policy="fp32")
+    with adapter.apply():
+        result = (torch.baddbmm if batched else torch.addmm)(bias, a, b, alpha=alpha, beta=beta)
+    torch.testing.assert_close(result, expected, rtol=0, atol=0)

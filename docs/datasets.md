@@ -73,16 +73,20 @@ be assumed to be Hugging Face merely because the experiment uses ViT.
 
 ## Storage
 
-Until work-directory write access is available, the persistent root remains
-`/scratch/$USER/avant-garde-reproduction`:
+The persistent root is
+`/work/cs-471/mixedprecisionarchitects/avant-garde-reproduction`:
 
 - `huggingface/hub/`: Hub model and dataset snapshots;
 - `datasets/`: processed Arrow caches;
 - `imagenet-validation-1000-seed0/`: materialized ImageNet subset and provenance;
 - `runs/`: reports and normalized bar graphs.
 
-The dataset caches and reports have not been moved to work. Set
-`AVANT_GARDE_DATA_ROOT=/work/cs-471/mixedprecisionarchitects/avant-garde-reproduction`
-after permissions are fixed and caches are migrated between jobs. The old
-`AVANT_GARDE_SCRATCH` variable remains a compatible root override. Slurm temporary
-files can stay on scratch through `AVANT_GARDE_TMP_ROOT`.
+On 2026-11-09 the project caches, ImageNet subset, results and temporary files
+were moved from `/scratch/santanto/avant-garde-reproduction` into this root.
+The old scratch path is a compatibility symlink to work, not a second copy.
+Migration checks found no source files left, verified all 1,000 manifest images,
+parsed 22 result JSON files, and resolved all 53 cache symlinks.
+
+`AVANT_GARDE_DATA_ROOT` overrides this default. The old `AVANT_GARDE_SCRATCH`
+variable remains a compatible root override. Slurm temporary files also default
+to the work root, under `tmp/JOBID`; override with `AVANT_GARDE_TMP_ROOT` if needed.

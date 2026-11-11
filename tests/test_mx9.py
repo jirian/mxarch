@@ -39,7 +39,7 @@ def test_against_independent_scalar_reference(rounding):
     expected, flattened = scalar_reference(x.tolist(), rounding)
     q = quantize_mx9(x, config=MX9Config(rounding))
     torch.testing.assert_close(dequantize(q), torch.tensor(expected), rtol=0, atol=0)
-    torch.testing.assert_close(dequantize(flatten_mx9(q, MX9Config(rounding))),
+    torch.testing.assert_close(dequantize(flatten_mx9(q, MX9Config(rounding, flatten_rounding=rounding))),
                                torch.tensor(flattened), rtol=0, atol=0)
 
 
@@ -53,7 +53,7 @@ def test_micro_scales_and_rounding_loss_without_overflow():
     assert flat.stats["rounding_changed"].item() == 4
     assert flat.stats["rounded_to_zero"].item() == 2
     assert flat.stats["out_of_range"].item() == 0
-    torch.testing.assert_close(dequantize(flat)[2:6], torch.tensor([2 / 64, -2 / 64, 0., 0.]))
+    torch.testing.assert_close(dequantize(flat)[2:6], torch.tensor([1 / 64, -1 / 64, 0., 0.]))
 
 
 @pytest.mark.parametrize("shape,axis", [((3, 35), -1), ((35, 3), 0), ((2, 7, 3), 1)])

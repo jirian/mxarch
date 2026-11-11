@@ -7,6 +7,21 @@ import subprocess
 from avant_garde.cli import data_paths
 
 
+def test_default_work_root_and_temporary_paths(monkeypatch):
+    for name in ("HF_HOME", "HF_DATASETS_CACHE", "TMPDIR", "AVANT_GARDE_DATA_ROOT",
+                 "AVANT_GARDE_SCRATCH", "AVANT_GARDE_TMP_ROOT"):
+        monkeypatch.delenv(name, raising=False)
+    created = []
+    monkeypatch.setattr(Path, "mkdir", lambda self, **kwargs: created.append(self))
+    root = Path("/work/cs-471/mixedprecisionarchitects/avant-garde-reproduction")
+    assert data_paths() == root
+    assert created == [root / "huggingface", root / "datasets", root / "tmp"]
+    monkeypatch.delenv("TMPDIR")
+    monkeypatch.setenv("AVANT_GARDE_TMP_ROOT", "/tmp/avant-garde-test")
+    data_paths()
+    assert os.environ["TMPDIR"] == "/tmp/avant-garde-test"
+
+
 def test_data_root_precedence_and_legacy_override(tmp_path, monkeypatch):
     for name in ("HF_HOME", "HF_DATASETS_CACHE", "TMPDIR", "AVANT_GARDE_DATA_ROOT"):
         monkeypatch.delenv(name, raising=False)
