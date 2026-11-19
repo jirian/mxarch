@@ -1,0 +1,28 @@
+GPT-2 openai-community/gpt2-medium fp32: 64 windows
+GPT-2 openai-community/gpt2-medium mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2-medium mx9_flattened: 64 windows
+GPT-2 openai-community/gpt2-medium mxint8_b16: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/xsize-4860082/gpt2-medium-ctx1024-all-nearest.json
+GPT-2 openai-community/gpt2-medium fp32: 64 windows
+GPT-2 openai-community/gpt2-medium mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2-medium mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/xsize-4860082/gpt2-medium-ctx1024-weights-nearest.json
+GPT-2 openai-community/gpt2-large fp32: 64 windows
+GPT-2 openai-community/gpt2-large mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2-large mx9_flattened: 64 windows
+GPT-2 openai-community/gpt2-large mxint8_b16: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/xsize-4860082/gpt2-large-ctx1024-all-nearest.json
+GPT-2 openai-community/gpt2-large fp32: 64 windows
+GPT-2 openai-community/gpt2-large mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2-large mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/xsize-4860082/gpt2-large-ctx1024-weights-nearest.json
+GPT-2 openai-community/gpt2-xl fp32: 64 windows
+GPT-2 openai-community/gpt2-xl mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2-xl mx9_flattened: 64 windows
+GPT-2 openai-community/gpt2-xl mxint8_b16: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/xsize-4860082/gpt2-xl-ctx1024-all-nearest.json
+GPT-2 openai-community/gpt2-xl fp32: 64 windows
+GPT-2 openai-community/gpt2-xl mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2-xl mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/xsize-4860082/gpt2-xl-ctx1024-weights-nearest.json
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/xsize-4860082

@@ -1,0 +1,10 @@
+{"fp32": 25.963943533842933, "microxcaling": 27.70932446284733}
+Traceback (most recent call last):
+  File "/work/cs-471/mixedprecisionarchitects/avant-garde/repo/scripts/microxcaling_check.py", line 64, in <module>
+    main()
+  File "/work/cs-471/mixedprecisionarchitects/avant-garde/repo/scripts/microxcaling_check.py", line 55, in main
+    results["microxcaling"] = perplexity(model, windows, "cuda")
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/cs-471/mixedprecisionarchitects/avant-garde/repo/avant_garde/evaluation.py", line 28, in perplexity
+    raise RuntimeError("Nonfinite language-model loss")
+RuntimeError: Nonfinite language-model loss

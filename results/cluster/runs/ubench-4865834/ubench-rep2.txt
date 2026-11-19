@@ -1,0 +1,9 @@
+# NVIDIA H100, 132 SMs, SM clock 1980 MHz, ITERS=4096 ILP=8
+HMMA.16816.F32 (mma m16n8k16 f16)        latency   24.06 cycles   throughput   0.646 warp-instr/cycle/SM
+IMMA.16832.S8 (mma m16n8k32 s8)          latency   24.06 cycles   throughput   0.648 warp-instr/cycle/SM
+FFMA (fma.rn.f32)                        latency    4.03 cycles   throughput   3.871 warp-instr/cycle/SM
+FMUL (mul.rn.f32)                        latency    4.03 cycles   throughput   3.860 warp-instr/cycle/SM
+IMAD (mad.lo.s32)                        latency    4.03 cycles   throughput   1.999 warp-instr/cycle/SM
+SHF (shf.l.wrap.b32, rotate)             latency    4.03 cycles   throughput   1.982 warp-instr/cycle/SM
+I2F (cvt.rn.f32.s32) + F2I chain         latency   23.00 cycles   throughput   0.498 warp-instr/cycle/SM
+MUFU.EX2 (ex2.approx.f32)                latency   17.00 cycles   throughput   0.500 warp-instr/cycle/SM

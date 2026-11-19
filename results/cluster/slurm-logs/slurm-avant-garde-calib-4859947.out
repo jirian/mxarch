@@ -1,0 +1,30 @@
+GPU: NVIDIA L40S
+GPT-2 openai-community/gpt2 fp32: 2 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 2 windows
+GPT-2 openai-community/gpt2 mxint8: 2 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/calib-4859947/check.json
+GPT-2 openai-community/gpt2 fp32: 64 windows
+GPT-2 openai-community/gpt2 mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 64 windows
+GPT-2 openai-community/gpt2 mx9_lossless: 64 windows
+GPT-2 openai-community/gpt2 mxint8: 64 windows
+GPT-2 openai-community/gpt2 mxint8_b16: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/calib-4859947/ctx1024-all-nearest.json
+GPT-2 openai-community/gpt2 fp32: 64 windows
+GPT-2 openai-community/gpt2 mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 64 windows
+GPT-2 openai-community/gpt2 mxint8_b16: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/calib-4859947/ctx1024-all-trunc.json
+GPT-2 openai-community/gpt2 fp32: 64 windows
+GPT-2 openai-community/gpt2 mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 64 windows
+GPT-2 openai-community/gpt2 mxint8: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/calib-4859947/ctx1024-weights-nearest.json
+GPT-2 openai-community/gpt2 fp32: 512 windows
+GPT-2 openai-community/gpt2 mx9_hierarchical: 512 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 512 windows
+GPT-2 openai-community/gpt2 mx9_lossless: 512 windows
+GPT-2 openai-community/gpt2 mxint8: 512 windows
+GPT-2 openai-community/gpt2 mxint8_b16: 512 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/calib-4859947/ctx128-all-nearest.json
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/calib-4859947

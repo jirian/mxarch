@@ -1,0 +1,16 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:11<00:45, 11.28s/it]Loading checkpoint shards:  40%|████      | 2/5 [00:23<00:34, 11.55s/it]Loading checkpoint shards:  60%|██████    | 3/5 [00:33<00:22, 11.27s/it]Loading checkpoint shards:  80%|████████  | 4/5 [00:43<00:10, 10.46s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:45<00:00,  7.39s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:45<00:00,  9.02s/it]
+GPT-2 Qwen/Qwen3-8B fp32: 1 windows
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/work/cs-471/mixedprecisionarchitects/avant-garde/repo/avant_garde/cli.py", line 257, in <module>
+    main()
+  File "/work/cs-471/mixedprecisionarchitects/avant-garde/repo/avant_garde/cli.py", line 248, in main
+    result = {"gpt2": gpt2, "vit": vit, "smoke-vit": tiny_vit}[args.command](args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/cs-471/mixedprecisionarchitects/avant-garde/repo/avant_garde/cli.py", line 112, in gpt2
+    adapter.check_coverage(len(windows))
+  File "/work/cs-471/mixedprecisionarchitects/avant-garde/repo/avant_garde/inference.py", line 182, in check_coverage
+    raise RuntimeError(f"Incomplete attention coverage: {attention_products} products; "
+RuntimeError: Incomplete attention coverage: 73 products; expected 72

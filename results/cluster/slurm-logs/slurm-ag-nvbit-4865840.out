@@ -1,0 +1,5 @@
+cudaTensorCoreGemm opcode_hist exit 0
+cudaTensorCoreGemm instr_count exit 0
+immaTensorCoreGemm opcode_hist exit 0
+immaTensorCoreGemm instr_count exit 0
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/nvbit-4865840

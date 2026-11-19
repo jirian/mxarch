@@ -1,0 +1,41 @@
+GPT-2 openai-community/gpt2 fp32: 64 windows
+GPT-2 openai-community/gpt2 mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/fallback-4860592/gpt2-all-head-hier.json
+GPT-2 openai-community/gpt2 fp32: 64 windows
+GPT-2 openai-community/gpt2 mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/fallback-4860592/gpt2-all-head-fp32.json
+GPT-2 openai-community/gpt2 fp32: 64 windows
+GPT-2 openai-community/gpt2 mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/fallback-4860592/gpt2-all-cproj-hier.json
+GPT-2 openai-community/gpt2 fp32: 64 windows
+GPT-2 openai-community/gpt2 mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/fallback-4860592/gpt2-all-head-cproj-hier.json
+GPT-2 openai-community/gpt2 fp32: 64 windows
+GPT-2 openai-community/gpt2 mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/fallback-4860592/gpt2-weights-head-hier.json
+GPT-2 openai-community/gpt2-medium fp32: 64 windows
+GPT-2 openai-community/gpt2-medium mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2-medium mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/fallback-4860592/gpt2-medium-all-head-hier.json
+GPT-2 openai-community/gpt2-medium fp32: 64 windows
+GPT-2 openai-community/gpt2-medium mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2-medium mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/fallback-4860592/gpt2-medium-all-head-fp32.json
+GPT-2 openai-community/gpt2-medium fp32: 64 windows
+GPT-2 openai-community/gpt2-medium mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2-medium mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/fallback-4860592/gpt2-medium-all-cproj-hier.json
+GPT-2 openai-community/gpt2-medium fp32: 64 windows
+GPT-2 openai-community/gpt2-medium mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2-medium mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/fallback-4860592/gpt2-medium-all-head-cproj-hier.json
+GPT-2 openai-community/gpt2-medium fp32: 64 windows
+GPT-2 openai-community/gpt2-medium mx9_hierarchical: 64 windows
+GPT-2 openai-community/gpt2-medium mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/fallback-4860592/gpt2-medium-weights-head-hier.json
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/fallback-4860592

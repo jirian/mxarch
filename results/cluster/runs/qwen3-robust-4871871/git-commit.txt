@@ -1,0 +1,7 @@
+1e50bb11e7d413941917d1a4de4e027be5d6b666
+ M avant_garde/cli.py
+ M avant_garde/evaluation.py
+ M avant_garde/inference.py
+ M tests/test_models.py
+?? scripts/slurm/qwen3_moe_h100x2.sbatch
+?? scripts/slurm/qwen3_robust_h100.sbatch

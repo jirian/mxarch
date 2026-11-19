@@ -1,0 +1,6 @@
+cad2331c9e8739fedff2714850ee077c1478e4e7
+ M avant_garde/cli.py
+ M avant_garde/inference.py
+ M docs/results-2026-11-08.md
+ M tests/test_models.py
+?? scripts/slurm/qwen3_h100.sbatch

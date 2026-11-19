@@ -1,0 +1,138 @@
+{
+ "experiment": "gpt2_perplexity",
+ "model": "Qwen/Qwen3-30B-A3B",
+ "checkpoint_commit": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39",
+ "parameters": 30532122624,
+ "dataset": {
+  "path": "/work/cs-471/mixedprecisionarchitects/avant-garde/data/text/wikipedia-20231101-en-150.txt",
+  "text_sha256": "a45d4142ba7ac2ffcf88a782f705b8dd63b521e301443f94aada53ea53960243",
+  "scored_input_sha256": "a85972f414273305529ec0649fd1c130d54de303756cad44cb3a5892282b6718"
+ },
+ "runs": [
+  {
+   "mode": "mx9_hierarchical",
+   "config": {
+    "rounding": "nearest",
+    "flattened_bits": 8,
+    "block_size": 16,
+    "pair_size": 2,
+    "exponent_min": -127,
+    "exponent_max": 127,
+    "flatten_rounding": "trunc"
+   },
+   "weights_only": false,
+   "numerical_backend": "dequantized",
+   "requested_backend": "dequantized",
+   "numerical_contract": "dequantized-gemm-v1",
+   "activation_policy": "fp32",
+   "requested_activation_policy": "fp32",
+   "activation_contract": "fp32-between-gemms-v1",
+   "activation_events": {},
+   "exponent_overflow": null,
+   "accumulator_dtype": "float32",
+   "exempt": "^lm_head$",
+   "exempt_mode": "mx9_flattened",
+   "cached_weight_views": 0,
+   "converted_weight_views": 234511,
+   "metrics": {
+    "nll": 2.0958273943075043,
+    "perplexity": 8.132166695847204,
+    "scored_tokens": 32752,
+    "windows": 16,
+    "observations": {
+     "unit": "text_window",
+     "loss_sums": [
+      4738.2890625,
+      4971.7333984375,
+      5717.796875,
+      5669.236328125,
+      4277.62841796875,
+      4701.74462890625,
+      4145.49755859375,
+      4375.3125,
+      3344.66796875,
+      3787.61279296875,
+      3901.2255859375,
+      3832.875,
+      3755.59228515625,
+      3963.24951171875,
+      3949.172119140625,
+      3510.90478515625
+     ],
+     "token_counts": [
+      2047,
+      2047,
+      2047,
+      2047,
+      2047,
+      2047,
+      2047,
+      2047,
+      2047,
+      2047,
+      2047,
+      2047,
+      2047,
+      2047,
+      2047,
+      2047
+     ]
+    }
+   },
+   "elapsed_seconds": 455.1848418429727,
+   "uncertainty": {
+    "method": "paired_bootstrap",
+    "unit": "text_window",
+    "observations": 16,
+    "replicates": 1000,
+    "seed": 0,
+    "perplexity_std": 0.6837959547023947
+   },
+   "diagnostics_omitted": "34960 entries removed to save space; full file on kuma",
+   "coverage_omitted": "17479 entries removed to save space; full file on kuma",
+   "exempted_calls_omitted": "1 entries removed to save space; full file on kuma"
+  }
+ ],
+ "metadata": {
+  "arguments": {
+   "command": "gpt2",
+   "device": "cuda",
+   "modes": [
+    "mx9_hierarchical"
+   ],
+   "rounding": "nearest",
+   "flatten_rounding": "trunc",
+   "activation_policy": "fp32",
+   "flattened_bits": 8,
+   "backend": "dequantized",
+   "accumulator": "fp32",
+   "exponent_overflow": "wide",
+   "weights_only": false,
+   "exempt": "^lm_head$",
+   "exempt_mode": "mx9_flattened",
+   "offline": true,
+   "seed": 0,
+   "output": "/work/cs-471/mixedprecisionarchitects/avant-garde/runs/moe-rounding-5008245/only-lm-head-flat-trunc.json",
+   "bootstrap_replicates": 1000,
+   "model": "Qwen/Qwen3-30B-A3B",
+   "revision": "main",
+   "text_file": "/work/cs-471/mixedprecisionarchitects/avant-garde/data/text/wikipedia-20231101-en-150.txt",
+   "device_map": "auto",
+   "no_weight_cache": true,
+   "dataset_revision": "main",
+   "context": 2048,
+   "windows": 16
+  },
+  "python": "3.11.7",
+  "packages": {
+   "torch": "2.10.0+cu128",
+   "transformers": "4.56.2",
+   "datasets": "4.1.1",
+   "numpy": "1.26.4",
+   "Pillow": "12.1.1"
+  },
+  "gpu": "NVIDIA H100",
+  "slurm_job_id": "5009532",
+  "numerics": "docs/numerics.md; reconstructed assumptions, not author code"
+ }
+}

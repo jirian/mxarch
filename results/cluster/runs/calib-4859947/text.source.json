@@ -1,0 +1,13 @@
+{
+  "dataset": "wikimedia/wikipedia",
+  "config": "20231101.en",
+  "revision": "main",
+  "split": "train",
+  "articles": 150,
+  "min_chars": 8000,
+  "skip": 0,
+  "first_id": "12",
+  "last_id": "986",
+  "characters": 5975372,
+  "text_sha256": "a45d4142ba7ac2ffcf88a782f705b8dd63b521e301443f94aada53ea53960243"
+}

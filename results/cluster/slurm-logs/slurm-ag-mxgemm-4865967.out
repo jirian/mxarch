@@ -1,0 +1,9 @@
+name, driver_version, clocks.max.sm [MHz], power.limit [W]
+NVIDIA H100, 560.35.03, 1980 MHz, 700.00 W
+# NVIDIA H100, 132 SMs; CTA 128x128x32, 256 threads; reps 20
+verify INT8   256x256x512  max rel err 0  OK
+verify MXINT8 256x256x512  max rel err 0.00037  FAIL
+verify MX9    256x256x512  max rel err 0.0178  FAIL
+timing exit 1
+nvbit exit 1
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/mxgemm-4865967

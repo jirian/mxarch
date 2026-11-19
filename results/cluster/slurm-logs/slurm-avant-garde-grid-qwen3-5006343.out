@@ -1,0 +1,35 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:06<00:26,  6.66s/it]Loading checkpoint shards:  40%|████      | 2/5 [00:14<00:22,  7.44s/it]Loading checkpoint shards:  60%|██████    | 3/5 [00:22<00:15,  7.50s/it]Loading checkpoint shards:  80%|████████  | 4/5 [00:30<00:07,  7.73s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:31<00:00,  5.34s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:31<00:00,  6.28s/it]
+GPT-2 Qwen/Qwen3-8B mx9_flattened: 1 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/grid-qwen3-5006343/check-hierarchical.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:00<00:01,  2.36it/s]Loading checkpoint shards:  40%|████      | 2/5 [00:00<00:01,  2.41it/s]Loading checkpoint shards:  60%|██████    | 3/5 [00:01<00:00,  2.43it/s]Loading checkpoint shards:  80%|████████  | 4/5 [00:01<00:00,  2.63it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:01<00:00,  3.44it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:01<00:00,  2.93it/s]
+GPT-2 Qwen/Qwen3-8B mx9_hierarchical: 64 windows
+GPT-2 Qwen/Qwen3-8B mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/grid-qwen3-5006343/qwen3-8b-act-fp32-flat-nearest.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:02<00:08,  2.16s/it]Loading checkpoint shards:  40%|████      | 2/5 [00:02<00:03,  1.15s/it]Loading checkpoint shards:  60%|██████    | 3/5 [00:03<00:01,  1.23it/s]Loading checkpoint shards:  80%|████████  | 4/5 [00:03<00:00,  1.59it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:03<00:00,  1.75it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:03<00:00,  1.31it/s]
+GPT-2 Qwen/Qwen3-8B mx9_hierarchical: 64 windows
+GPT-2 Qwen/Qwen3-8B mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/grid-qwen3-5006343/qwen3-8b-act-fp32-flat-trunc.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:00<00:02,  1.81it/s]Loading checkpoint shards:  40%|████      | 2/5 [00:00<00:01,  2.10it/s]Loading checkpoint shards:  60%|██████    | 3/5 [00:01<00:00,  2.23it/s]Loading checkpoint shards:  80%|████████  | 4/5 [00:01<00:00,  2.47it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:01<00:00,  3.31it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:01<00:00,  2.70it/s]
+GPT-2 Qwen/Qwen3-8B mx9_hierarchical: 64 windows
+GPT-2 Qwen/Qwen3-8B mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/grid-qwen3-5006343/qwen3-8b-act-hierarchical-flat-nearest.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:08<00:33,  8.39s/it]Loading checkpoint shards:  40%|████      | 2/5 [00:18<00:28,  9.41s/it]Loading checkpoint shards:  60%|██████    | 3/5 [00:27<00:18,  9.39s/it]Loading checkpoint shards:  80%|████████  | 4/5 [00:28<00:05,  5.82s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:29<00:00,  4.29s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:29<00:00,  5.96s/it]
+GPT-2 Qwen/Qwen3-8B mx9_hierarchical: 64 windows
+GPT-2 Qwen/Qwen3-8B mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/grid-qwen3-5006343/qwen3-8b-act-hierarchical-flat-trunc.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:00<00:01,  2.19it/s]Loading checkpoint shards:  40%|████      | 2/5 [00:12<00:21,  7.02s/it]Loading checkpoint shards:  60%|██████    | 3/5 [00:23<00:17,  8.87s/it]Loading checkpoint shards:  80%|████████  | 4/5 [00:31<00:08,  8.80s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:33<00:00,  6.25s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:33<00:00,  6.71s/it]
+GPT-2 Qwen/Qwen3-8B mx9_hierarchical: 4 windows
+GPT-2 Qwen/Qwen3-8B mx9_flattened: 4 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/grid-qwen3-5006343/qwen3-8b-w4-act-fp32-flat-trunc-dequantized.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:00<00:01,  2.20it/s]Loading checkpoint shards:  40%|████      | 2/5 [00:00<00:01,  2.24it/s]Loading checkpoint shards:  60%|██████    | 3/5 [00:01<00:00,  2.31it/s]Loading checkpoint shards:  80%|████████  | 4/5 [00:01<00:00,  2.53it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:01<00:00,  3.38it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:01<00:00,  2.83it/s]
+GPT-2 Qwen/Qwen3-8B mx9_hierarchical: 4 windows
+GPT-2 Qwen/Qwen3-8B mx9_flattened: 4 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/grid-qwen3-5006343/qwen3-8b-w4-act-fp32-flat-trunc-figure8.json
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/grid-qwen3-5006343

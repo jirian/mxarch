@@ -1,0 +1,50 @@
+{
+  "arguments": {
+    "microxcaling": "/work/cs-471/mixedprecisionarchitects/avant-garde/microxcaling",
+    "model": "openai-community/gpt2",
+    "text_file": "/work/cs-471/mixedprecisionarchitects/avant-garde/data/text/wikipedia-20231101-en-150.txt",
+    "context": 1024,
+    "windows": 64,
+    "bfloat": 0,
+    "elem_format": "int8",
+    "block_size": 32,
+    "output": "/work/cs-471/mixedprecisionarchitects/avant-garde/runs/xsize-4860058/microxcaling-mxint8-bf0.json"
+  },
+  "mx_specs": {
+    "scale_bits": 8,
+    "w_elem_format": "int8",
+    "a_elem_format": "int8",
+    "w_elem_format_bp": "int8",
+    "a_elem_format_bp": "int8",
+    "a_elem_format_bp_ex": "int8",
+    "a_elem_format_bp_os": "int8",
+    "mx_flush_fp32_subnorms": false,
+    "shared_exp_method": "max",
+    "block_size": 32,
+    "bfloat": 0,
+    "fp": 0,
+    "bfloat_subnorms": true,
+    "quantize_backprop": false,
+    "round": "nearest",
+    "round_m": "nearest",
+    "round_weight": "nearest",
+    "round_output": "nearest",
+    "round_grad_weight": "nearest",
+    "round_grad_input": "nearest",
+    "round_mx_output": "nearest",
+    "round_mx_input_grad_input": "nearest",
+    "round_mx_weight_grad_input": "nearest",
+    "round_mx_grad_output_grad_input": "nearest",
+    "round_mx_input_grad_weight": "nearest",
+    "round_mx_grad_output_grad_weight": "nearest",
+    "softmax_exp2": false,
+    "vec_use_exp2": false,
+    "vec_use_recip": false,
+    "custom_cuda": false
+  },
+  "perplexity": {
+    "fp32": 25.963943533842933,
+    "microxcaling": 27.70932446284733
+  },
+  "scored_tokens": 65472
+}

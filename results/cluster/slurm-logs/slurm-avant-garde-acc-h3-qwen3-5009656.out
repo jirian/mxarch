@@ -1,0 +1,37 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:01<00:04,  1.08s/it]Loading checkpoint shards:  40%|████      | 2/5 [00:02<00:03,  1.26s/it]Loading checkpoint shards:  60%|██████    | 3/5 [00:03<00:02,  1.27s/it]Loading checkpoint shards:  80%|████████  | 4/5 [00:04<00:01,  1.18s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:04<00:00,  1.03it/s]
+8192 {"proj": 3.977119892835617, "attn": 3.10351999104023, "softmax": 25.280160427093506, "other": 3.427743971347809}
+  gemm_scale=1.0/projections                 f=0.889 S(s=1.66)=1.05 S(s=1.93)=1.06 S(s=3.96)=1.09
+  gemm_scale=1.0/projections+attention       f=0.802 S(s=1.66)=1.09 S(s=1.93)=1.11 S(s=3.96)=1.17
+  gemm_scale=0.5/projections                 f=0.938 S(s=1.66)=1.03 S(s=1.93)=1.03 S(s=3.96)=1.05
+  gemm_scale=0.5/projections+attention       f=0.890 S(s=1.66)=1.05 S(s=1.93)=1.06 S(s=3.96)=1.09
+  gemm_scale=1.98/projections                f=0.816 S(s=1.66)=1.08 S(s=1.93)=1.10 S(s=3.96)=1.16
+  gemm_scale=1.98/projections+attention      f=0.672 S(s=1.66)=1.15 S(s=1.93)=1.19 S(s=3.96)=1.32
+32768 {"proj": 16.460927367210388, "attn": 40.436480179429054, "softmax": 352.92803502082825, "other": 13.166016101837158}
+  gemm_scale=1.0/projections                 f=0.961 S(s=1.66)=1.02 S(s=1.93)=1.02 S(s=3.96)=1.03
+  gemm_scale=1.0/projections+attention       f=0.865 S(s=1.66)=1.06 S(s=1.93)=1.07 S(s=3.96)=1.11
+  gemm_scale=0.5/projections                 f=0.979 S(s=1.66)=1.01 S(s=1.93)=1.01 S(s=3.96)=1.02
+  gemm_scale=0.5/projections+attention       f=0.928 S(s=1.66)=1.03 S(s=1.93)=1.04 S(s=3.96)=1.06
+  gemm_scale=1.98/projections                f=0.932 S(s=1.66)=1.03 S(s=1.93)=1.03 S(s=3.96)=1.05
+  gemm_scale=1.98/projections+attention      f=0.765 S(s=1.66)=1.10 S(s=1.93)=1.13 S(s=3.96)=1.21
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:00<00:01,  2.23it/s]Loading checkpoint shards:  40%|████      | 2/5 [00:00<00:01,  2.30it/s]Loading checkpoint shards:  60%|██████    | 3/5 [00:01<00:00,  2.35it/s]Loading checkpoint shards:  80%|████████  | 4/5 [00:01<00:00,  1.88it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:02<00:00,  2.62it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:02<00:00,  2.38it/s]
+GPT-2 Qwen/Qwen3-8B mx9_hierarchical: 8 windows
+GPT-2 Qwen/Qwen3-8B mx9_flattened: 8 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-h3-qwen3-5009656/qwen3-8b-acc-fp32-flat-trunc.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:00<00:01,  2.26it/s]Loading checkpoint shards:  40%|████      | 2/5 [00:00<00:01,  2.14it/s]Loading checkpoint shards:  60%|██████    | 3/5 [00:01<00:00,  2.27it/s]Loading checkpoint shards:  80%|████████  | 4/5 [00:01<00:00,  2.51it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:01<00:00,  3.37it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:01<00:00,  2.80it/s]
+GPT-2 Qwen/Qwen3-8B mx9_hierarchical: 8 windows
+GPT-2 Qwen/Qwen3-8B mx9_flattened: 8 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-h3-qwen3-5009656/qwen3-8b-acc-bf16-flat-trunc.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:00<00:01,  2.16it/s]Loading checkpoint shards:  40%|████      | 2/5 [00:00<00:01,  2.31it/s]Loading checkpoint shards:  60%|██████    | 3/5 [00:01<00:00,  2.38it/s]Loading checkpoint shards:  80%|████████  | 4/5 [00:01<00:00,  2.48it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:01<00:00,  3.33it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:01<00:00,  2.82it/s]
+GPT-2 Qwen/Qwen3-8B mx9_hierarchical: 8 windows
+GPT-2 Qwen/Qwen3-8B mx9_flattened: 8 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-h3-qwen3-5009656/qwen3-8b-acc-fp16-flat-trunc.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:00<00:01,  2.29it/s]Loading checkpoint shards:  40%|████      | 2/5 [00:00<00:01,  2.38it/s]Loading checkpoint shards:  60%|██████    | 3/5 [00:01<00:00,  2.44it/s]Loading checkpoint shards:  80%|████████  | 4/5 [00:01<00:00,  2.66it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:01<00:00,  3.53it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:01<00:00,  2.97it/s]
+GPT-2 Qwen/Qwen3-8B mx9_hierarchical: 8 windows
+GPT-2 Qwen/Qwen3-8B mx9_flattened: 8 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-h3-qwen3-5009656/qwen3-8b-acc-fp32-m14-flat-trunc.json
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-h3-qwen3-5009656

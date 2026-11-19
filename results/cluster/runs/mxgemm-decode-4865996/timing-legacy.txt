@@ -1,0 +1,50 @@
+# NVIDIA H100, 132 SMs, measured streaming-read bandwidth 2289 GB/s (4 GiB, spec 3350), reps 50, legacy KB32x2
+verify INT8   M=16   N=128  K=2048 tile 16x64x32 split 16  err/sum|terms| 0 (bound 1.7e-05) OK
+verify INT8   M=32   N=128  K=1024 tile 32x64x32 split 8  err/sum|terms| 0 (bound 8.6e-06) OK
+verify INT8   M=64   N=256  K=512  tile 64x64x32 split 4  err/sum|terms| 0 (bound 4.3e-06) OK
+verify INT8   M=256  N=256  K=512  tile 128x128x32 split 4  err/sum|terms| 0 (bound 4.3e-06) OK
+verify MXINT8 M=16   N=128  K=2048 tile 16x64x32 split 16  err/sum|terms| 2.06e-07 (bound 1.7e-05) OK
+verify MXINT8 M=32   N=128  K=1024 tile 32x64x32 split 8  err/sum|terms| 1.81e-07 (bound 8.6e-06) OK
+verify MXINT8 M=64   N=256  K=512  tile 64x64x32 split 4  err/sum|terms| 1.82e-07 (bound 4.3e-06) OK
+verify MXINT8 M=256  N=256  K=512  tile 128x128x32 split 4  err/sum|terms| 1.76e-07 (bound 4.3e-06) OK
+verify MX9    M=16   N=128  K=2048 tile 16x64x32 split 16  err/sum|terms| 2.27e-07 (bound 1.7e-05) OK
+verify MX9    M=32   N=128  K=1024 tile 32x64x32 split 8  err/sum|terms| 1.45e-07 (bound 8.6e-06) OK
+verify MX9    M=64   N=256  K=512  tile 64x64x32 split 4  err/sum|terms| 2.04e-07 (bound 4.3e-06) OK
+verify MX9    M=256  N=256  K=512  tile 128x128x32 split 4  err/sum|terms| 1.95e-07 (bound 4.3e-06) OK
+layer        M mode       tile split         us     TOPS     B GB/s   %meas  vs INT8
+qkv         16 INT8     16x64      8      19.64     41.0       1281   56.0%   1.000x
+qkv         16 MXINT8   16x64      8      26.11     30.8        994   43.4%   1.329x
+qkv         16 MX9      16x64      8      39.14     20.6        723   31.6%   1.993x
+qkv         32 INT8     32x64      8      23.91     67.4       1053   46.0%   1.000x
+qkv         32 MXINT8   32x64      8      31.94     50.4        813   35.5%   1.336x
+qkv         32 MX9      32x64      8      49.57     32.5        571   25.0%   2.073x
+qkv         64 INT8     64x64      8      34.22     94.1        735   32.1%   1.000x
+qkv         64 MXINT8   64x64      8      48.68     66.2        533   23.3%   1.422x
+qkv         64 MX9      64x64      8      70.58     45.6        401   17.5%   2.062x
+o           16 INT8     16x64     16      15.38     34.9       1091   47.7%   1.000x
+o           16 MXINT8   16x64     16      19.64     27.3        881   38.5%   1.277x
+o           16 MX9      16x64     16      28.38     18.9        665   29.1%   1.845x
+o           32 INT8     32x64     16      20.48     52.4        819   35.8%   1.000x
+o           32 MXINT8   32x64     16      25.14     42.7        688   30.1%   1.227x
+o           32 MX9      32x64     16      36.46     29.5        518   22.6%   1.780x
+o           64 INT8     64x64     16      30.58     70.2        549   24.0%   1.000x
+o           64 MXINT8   64x64     16      38.85     55.3        445   19.5%   1.270x
+o           64 MX9      64x64     16      55.12     39.0        342   15.0%   1.802x
+gate_up     16 INT8     16x64      2     114.45     28.1        880   38.4%   1.000x
+gate_up     16 MXINT8   16x64      2     117.73     27.4        882   38.5%   1.029x
+gate_up     16 MX9      16x64      2     147.61     21.8        767   33.5%   1.290x
+gate_up     32 INT8     32x64      2     118.85     54.2        847   37.0%   1.000x
+gate_up     32 MXINT8   32x64      2     124.88     51.6        831   36.3%   1.051x
+gate_up     32 MX9      32x64      2     176.42     36.5        642   28.0%   1.484x
+gate_up     64 INT8     64x64      2     126.19    102.1        798   34.9%   1.000x
+gate_up     64 MXINT8   64x64      2     156.92     82.1        662   28.9%   1.244x
+gate_up     64 MX9      64x64      2     240.50     53.6        471   20.6%   1.906x
+down        16 INT8     16x64     16      45.20     35.6       1114   48.7%   1.000x
+down        16 MXINT8   16x64     16      51.17     31.5       1014   44.3%   1.132x
+down        16 MX9      16x64     16      75.08     21.5        754   33.0%   1.661x
+down        32 INT8     32x64     16      50.20     64.2       1003   43.8%   1.000x
+down        32 MXINT8   32x64     16      57.44     56.1        904   39.5%   1.144x
+down        32 MX9      32x64     16      92.39     34.9        613   26.8%   1.840x
+down        64 INT8     64x64     16      60.29    106.9        835   36.5%   1.000x
+down        64 MXINT8   64x64     16      85.79     75.1        605   26.4%   1.423x
+down        64 MX9      64x64     16     131.55     49.0        430   18.8%   2.182x

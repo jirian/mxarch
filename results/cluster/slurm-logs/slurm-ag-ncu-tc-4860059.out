@@ -1,0 +1,27 @@
+name, driver_version, clocks.max.sm [MHz]
+NVIDIA H100, 560.35.03, 1980 MHz
+Initializing...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+M: 4096 (16 x 256)
+N: 4096 (16 x 256)
+K: 4096 (16 x 256)
+Preparing data for GPU...
+Required shared memory size: 64 Kb
+Computing... using high performance kernel compute_gemm 
+Time: 2.920800 ms
+TFLOPS: 47.06
+cudaTensorCoreGemm ncu exit 1
+Initializing...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+M: 4096 (16 x 256)
+N: 4096 (16 x 256)
+K: 4096 (16 x 256)
+Preparing data for GPU...
+Required shared memory size: 64 Kb
+Computing... using high performance kernel compute_gemm_imma 
+Time: 2.043872 ms
+TOPS: 67.24
+immaTensorCoreGemm ncu exit 1
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/ncu-4860059

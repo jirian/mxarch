@@ -1,0 +1,19 @@
+name, driver_version, clocks.max.sm [MHz], power.limit [W]
+NVIDIA H100, 560.35.03, 1980 MHz, 700.00 W
+# NVIDIA H100, 132 SMs; CTA 128x128x32, 256 threads; reps 20
+verify INT8   256x256x512  max err/|result| 0  max err/sum|terms| 0 (bound 1.9e-06)  OK
+verify MXINT8 256x256x512  max err/|result| 0.00037  max err/sum|terms| 3.21e-07 (bound 1.9e-06)  OK
+verify MX9    256x256x512  max err/|result| 0.0178  max err/sum|terms| 3.36e-07 (bound 3.8e-06)  OK
+  size mode            ms      TOPS      vs INT8
+  2048 INT8         0.060     286.6       1.000x
+  2048 MXINT8       0.090     190.5       1.505x
+  2048 MX9          0.204      84.3       3.399x
+  4096 INT8         0.405     339.4       1.000x
+  4096 MXINT8       0.696     197.5       1.718x
+  4096 MX9          1.552      88.6       3.833x
+  8192 INT8         2.999     366.7       1.000x
+  8192 MXINT8       5.231     210.2       1.744x
+  8192 MX9         12.066      91.1       4.024x
+timing exit 0
+nvbit exit 0
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/mxgemm-4865968

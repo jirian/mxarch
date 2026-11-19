@@ -1,0 +1,65 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2 mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-acc-fp32-flat-nearest.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2 mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-acc-fp32-flat-trunc.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2 mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-acc-bf16-flat-nearest.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2 mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-acc-bf16-flat-trunc.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2 mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-acc-fp16-flat-nearest.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2 mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-acc-fp16-flat-trunc.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2 mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-acc-fp32-m14-flat-nearest.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2 mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2 mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-acc-fp32-m14-flat-trunc.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2-medium mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2-medium mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-medium-acc-fp32-flat-nearest.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2-medium mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2-medium mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-medium-acc-fp32-flat-trunc.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2-medium mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2-medium mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-medium-acc-bf16-flat-nearest.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2-medium mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2-medium mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-medium-acc-bf16-flat-trunc.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2-medium mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2-medium mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-medium-acc-fp16-flat-nearest.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2-medium mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2-medium mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-medium-acc-fp16-flat-trunc.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2-medium mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2-medium mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-medium-acc-fp32-m14-flat-nearest.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+GPT-2 openai-community/gpt2-medium mx9_hierarchical: 32 windows
+GPT-2 openai-community/gpt2-medium mx9_flattened: 32 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655/gpt2-medium-acc-fp32-m14-flat-trunc.json
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/acc-gpt2-5009655

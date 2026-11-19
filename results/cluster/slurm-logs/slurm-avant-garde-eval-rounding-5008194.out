@@ -1,0 +1,56 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:08<00:34,  8.72s/it]Loading checkpoint shards:  40%|████      | 2/5 [00:18<00:27,  9.22s/it]Loading checkpoint shards:  60%|██████    | 3/5 [00:27<00:18,  9.20s/it]Loading checkpoint shards:  80%|████████  | 4/5 [00:35<00:08,  8.71s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:37<00:00,  6.15s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:37<00:00,  7.41s/it]
+fp32 {"arc": {"acc": 45.0, "acc_norm": 50.0}, "hellaswag": {"acc": 50.0, "acc_norm": 80.0}}
+hier {"arc": {"acc": 45.0, "acc_norm": 50.0}, "hellaswag": {"acc": 50.0, "acc_norm": 80.0}}
+flat-nearest {"arc": {"acc": 45.0, "acc_norm": 45.0}, "hellaswag": {"acc": 50.0, "acc_norm": 80.0}}
+flat-trunc {"arc": {"acc": 45.0, "acc_norm": 50.0}, "hellaswag": {"acc": 50.0, "acc_norm": 85.0}}
+fp32/arc/acc                              +0.00 [ +0.00,  +0.00] points vs hier
+fp32/arc/acc_norm                         +0.00 [ +0.00,  +0.00] points vs hier
+fp32/hellaswag/acc                        +0.00 [ +0.00,  +0.00] points vs hier
+fp32/hellaswag/acc_norm                   +0.00 [ +0.00,  +0.00] points vs hier
+hier/arc/acc                              +0.00 [ +0.00,  +0.00] points vs hier
+hier/arc/acc_norm                         +0.00 [ +0.00,  +0.00] points vs hier
+hier/hellaswag/acc                        +0.00 [ +0.00,  +0.00] points vs hier
+hier/hellaswag/acc_norm                   +0.00 [ +0.00,  +0.00] points vs hier
+flat-nearest/arc/acc                      +0.00 [ +0.00,  +0.00] points vs hier
+flat-nearest/arc/acc_norm                 -5.00 [-15.00,  +0.00] points vs hier
+flat-nearest/hellaswag/acc                +0.00 [ +0.00,  +0.00] points vs hier
+flat-nearest/hellaswag/acc_norm           +0.00 [ +0.00,  +0.00] points vs hier
+flat-trunc/arc/acc                        +0.00 [ +0.00,  +0.00] points vs hier
+flat-trunc/arc/acc_norm                   +0.00 [ +0.00,  +0.00] points vs hier
+flat-trunc/hellaswag/acc                  +0.00 [ +0.00,  +0.00] points vs hier
+flat-trunc/hellaswag/acc_norm             +5.00 [ +0.00, +15.00] points vs hier
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:01<00:07,  1.83s/it]Loading checkpoint shards:  40%|████      | 2/5 [00:03<00:05,  1.99s/it]Loading checkpoint shards:  60%|██████    | 3/5 [00:06<00:04,  2.22s/it]Loading checkpoint shards:  80%|████████  | 4/5 [00:08<00:02,  2.01s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:08<00:00,  1.45s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:08<00:00,  1.72s/it]
+GPT-2 Qwen/Qwen3-8B fp32: 64 windows
+GPT-2 Qwen/Qwen3-8B mx9_hierarchical: 64 windows
+GPT-2 Qwen/Qwen3-8B mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/eval-rounding-5008194/wikitext-flat-nearest.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:09<00:39,  9.83s/it]Loading checkpoint shards:  40%|████      | 2/5 [00:20<00:31, 10.47s/it]Loading checkpoint shards:  60%|██████    | 3/5 [00:31<00:21, 10.57s/it]Loading checkpoint shards:  80%|████████  | 4/5 [00:40<00:09,  9.95s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:42<00:00,  7.01s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:42<00:00,  8.45s/it]
+GPT-2 Qwen/Qwen3-8B mx9_hierarchical: 64 windows
+GPT-2 Qwen/Qwen3-8B mx9_flattened: 64 windows
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/eval-rounding-5008194/wikitext-flat-trunc.json
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:05<00:20,  5.20s/it]Loading checkpoint shards:  40%|████      | 2/5 [00:11<00:17,  5.67s/it]Loading checkpoint shards:  60%|██████    | 3/5 [00:16<00:10,  5.44s/it]Loading checkpoint shards:  80%|████████  | 4/5 [00:20<00:04,  5.00s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:21<00:00,  3.46s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:21<00:00,  4.28s/it]
+fp32 {"arc": {"acc": 55.80204778156997, "acc_norm": 56.65529010238908}, "hellaswag": {"acc": 56.1, "acc_norm": 76.4}}
+hier {"arc": {"acc": 55.11945392491467, "acc_norm": 56.484641638225256}, "hellaswag": {"acc": 56.1, "acc_norm": 76.5}}
+flat-nearest {"arc": {"acc": 54.69283276450512, "acc_norm": 56.65529010238908}, "hellaswag": {"acc": 55.4, "acc_norm": 76.0}}
+flat-trunc {"arc": {"acc": 55.460750853242324, "acc_norm": 57.593856655290104}, "hellaswag": {"acc": 56.4, "acc_norm": 77.0}}
+fp32/arc/acc                              +0.68 [ +0.00,  +1.45] points vs hier
+fp32/arc/acc_norm                         +0.17 [ -0.43,  +0.85] points vs hier
+fp32/hellaswag/acc                        +0.00 [ -0.30,  +0.30] points vs hier
+fp32/hellaswag/acc_norm                   -0.10 [ -0.60,  +0.30] points vs hier
+hier/arc/acc                              +0.00 [ +0.00,  +0.00] points vs hier
+hier/arc/acc_norm                         +0.00 [ +0.00,  +0.00] points vs hier
+hier/hellaswag/acc                        +0.00 [ +0.00,  +0.00] points vs hier
+hier/hellaswag/acc_norm                   +0.00 [ +0.00,  +0.00] points vs hier
+flat-nearest/arc/acc                      -0.43 [ -1.62,  +0.68] points vs hier
+flat-nearest/arc/acc_norm                 +0.17 [ -0.77,  +1.11] points vs hier
+flat-nearest/hellaswag/acc                -0.70 [ -1.30,  -0.10] points vs hier
+flat-nearest/hellaswag/acc_norm           -0.50 [ -1.20,  +0.10] points vs hier
+flat-trunc/arc/acc                        +0.34 [ -0.60,  +1.37] points vs hier
+flat-trunc/arc/acc_norm                   +1.11 [ +0.17,  +2.13] points vs hier
+flat-trunc/hellaswag/acc                  +0.30 [ -0.10,  +0.80] points vs hier
+flat-trunc/hellaswag/acc_norm             +0.50 [ -0.20,  +1.30] points vs hier
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/eval-rounding-5008194

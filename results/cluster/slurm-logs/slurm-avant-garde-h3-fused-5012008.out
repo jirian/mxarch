@@ -1,0 +1,17 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:00<00:03,  1.15it/s]Loading checkpoint shards:  40%|████      | 2/5 [00:01<00:03,  1.00s/it]Loading checkpoint shards:  60%|██████    | 3/5 [00:03<00:02,  1.05s/it]Loading checkpoint shards:  80%|████████  | 4/5 [00:04<00:01,  1.03s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:04<00:00,  1.22it/s]
+8192 {"proj": 3.9939199686050415, "attn": 0, "softmax": 0, "other": 3.427712008357048, "fused_attn": 1.7255359888076782}
+  gemm_scale=1.0/projections                 f=0.563 S(s=1.66)=1.21 S(s=1.93)=1.27 S(s=3.96)=1.48
+  gemm_scale=1.0/projections+attention       f=0.375 S(s=1.66)=1.33 S(s=1.93)=1.43 S(s=3.96)=1.88
+  gemm_scale=0.5/projections                 f=0.682 S(s=1.66)=1.14 S(s=1.93)=1.18 S(s=3.96)=1.31
+  gemm_scale=0.5/projections+attention       f=0.545 S(s=1.66)=1.22 S(s=1.93)=1.28 S(s=3.96)=1.52
+  gemm_scale=1.98/projections                f=0.464 S(s=1.66)=1.27 S(s=1.93)=1.35 S(s=3.96)=1.67
+  gemm_scale=1.98/projections+attention      f=0.232 S(s=1.66)=1.44 S(s=1.93)=1.59 S(s=3.96)=2.35
+32768 {"proj": 16.0110080242157, "attn": 0, "softmax": 0, "other": 13.187487959861755, "fused_attn": 25.090272903442383}
+  gemm_scale=1.0/projections                 f=0.705 S(s=1.66)=1.13 S(s=1.93)=1.17 S(s=3.96)=1.28
+  gemm_scale=1.0/projections+attention       f=0.243 S(s=1.66)=1.43 S(s=1.93)=1.57 S(s=3.96)=2.30
+  gemm_scale=0.5/projections                 f=0.763 S(s=1.66)=1.10 S(s=1.93)=1.13 S(s=3.96)=1.22
+  gemm_scale=0.5/projections+attention       f=0.391 S(s=1.66)=1.32 S(s=1.93)=1.42 S(s=3.96)=1.84
+  gemm_scale=1.98/projections                f=0.665 S(s=1.66)=1.15 S(s=1.93)=1.19 S(s=3.96)=1.33
+  gemm_scale=1.98/projections+attention      f=0.139 S(s=1.66)=1.52 S(s=1.93)=1.71 S(s=3.96)=2.80
+Results: /work/cs-471/mixedprecisionarchitects/avant-garde/runs/h3-fused-5012008

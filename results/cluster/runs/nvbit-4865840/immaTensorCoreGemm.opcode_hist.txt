@@ -1,0 +1,63 @@
+------------- NVBit (NVidia Binary Instrumentation Tool v1.7.7.3) Loaded --------------
+NVBit core environment variables (mostly for nvbit-devs):
+ACK_CTX_INIT_LIMITATION = 0 - if set, no warning will be printed for nvbit_at_ctx_init()
+            NVDISASM = nvdisasm - override default nvdisasm found in PATH
+            NOBANNER = 0 - if set, does not print this banner
+       NO_EAGER_LOAD = 1 - lazy module loading is now turned on by default. If you see deadlocks in your tool, set NO_EAGER_LOAD to 0
+---------------------------------------------------------------------------------
+         INSTR_BEGIN = 0 - Beginning of the instruction interval where to apply instrumentation
+           INSTR_END = 4294967295 - End of the instruction interval where to apply instrumentation
+        KERNEL_BEGIN = 0 - Beginning of the kernel launch interval where to apply instrumentation
+          KERNEL_END = 4294967295 - End of the kernel launch interval where to apply instrumentation
+        TOOL_VERBOSE = 0 - Enable verbosity inside the tool
+    COUNT_WARP_LEVEL = 1 - Count warp level or thread level instructions
+    EXCLUDE_PRED_OFF = 0 - Exclude predicated off instruction from count
+WARNING: Do not call CUDA memory allocation in nvbit_at_ctx_init(). It will cause deadlocks. Do them in nvbit_tool_init(). If you encounter deadlocks, remove CUDA API calls to debug.
+----------------------------------------------------------------------------------------------------
+Initializing...
+GPU Device 0: "Hopper" with compute capability 9.0
+
+M: 4096 (16 x 256)
+N: 4096 (16 x 256)
+K: 4096 (16 x 256)
+Preparing data for GPU...
+Required shared memory size: 64 Kb
+Computing... using high performance kernel compute_gemm_imma 
+kernel 0 - compute_gemm_imma(unsigned char const*, unsigned char const*, int const*, int*, int, int) - #thread-blocks 132,  kernel instructions 54340608, total instructions 54340608
+  BAR.SYNC.DEFER_BLOCKING = 557056
+  BRA = 8192
+  EXIT = 2112
+  F2I.FTZ.U32.TRUNC.NTZ = 1056
+  I2F.RP = 1056
+  IABS = 2112
+  IADD3 = 302528
+  IADD3.X = 40960
+  IMAD = 1488032
+  IMAD.HI.U32 = 2112
+  IMAD.WIDE.U32 = 8192
+  IMMA.16816.U8.U8 = 33554432
+  ISETP.GE.AND = 1056
+  ISETP.GE.U32.AND = 2112
+  ISETP.GT.U32.AND = 1056
+  ISETP.NE.AND = 1056
+  LDC = 9248
+  LDC.64 = 25632
+  LDG.E.128 = 2228224
+  LDS.128 = 131072
+  LDS.64 = 262144
+  LDSM.16.M88.2 = 12582912
+  LEA = 200832
+  LEA.HI.X = 8192
+  LOP3.LUT = 107808
+  MOV = 3168
+  MUFU.RCP = 1056
+  S2R = 44128
+  SHF.L.U32 = 69760
+  SHF.R.U32.HI = 68704
+  STG.E.128 = 131072
+  STS.128 = 2228224
+  STS.64 = 262144
+  ULDC = 1056
+  ULDC.64 = 2112
+Time: 646.402954 ms
+TOPS: 0.21
