@@ -15,6 +15,7 @@ import torch
 from .evaluation import classification, perplexity, token_windows
 from .inference import MX9Inference, configure_fp32
 from .mx9 import DEFAULT_MODES, MODES, MX9Config
+from .tensor_core import ACCUMULATORS
 from .uncertainty import add_uncertainty
 
 
@@ -60,7 +61,7 @@ def tiny_vit(args):
         adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits, flatten_rounding=args.flatten_rounding),
                                args.weights_only, backend=args.backend, exponent_overflow=args.exponent_overflow,
                                activation_policy=args.activation_policy, exempt=args.exempt,
-                               exempt_mode=args.exempt_mode)
+                               exempt_mode=args.exempt_mode, accumulator=args.accumulator)
         with adapter.apply():
             result = model(pixel_values=pixels).logits
         adapter.check_coverage(1)
@@ -112,7 +113,7 @@ def gpt2(args):
         adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits, flatten_rounding=args.flatten_rounding),
                                args.weights_only, backend=args.backend, exponent_overflow=args.exponent_overflow,
                                activation_policy=args.activation_policy, exempt=args.exempt,
-                               exempt_mode=args.exempt_mode, cache_weights=not args.no_weight_cache)
+                               exempt_mode=args.exempt_mode, accumulator=args.accumulator, cache_weights=not args.no_weight_cache)
         started = time.monotonic()
         with adapter.apply():
             metrics = perplexity(model, windows, args.device)
@@ -170,7 +171,7 @@ def vit(args):
         adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits, flatten_rounding=args.flatten_rounding),
                                args.weights_only, backend=args.backend, exponent_overflow=args.exponent_overflow,
                                activation_policy=args.activation_policy, exempt=args.exempt,
-                               exempt_mode=args.exempt_mode)
+                               exempt_mode=args.exempt_mode, accumulator=args.accumulator)
         with adapter.apply():
             metrics = classification(model, batches(), args.device)
         adapter.check_coverage((len(rows) + args.batch_size - 1) // args.batch_size)
@@ -221,6 +222,8 @@ def parser():
         sub.add_argument("--flattened-bits", type=int, default=8)
         sub.add_argument("--backend", choices=("figure8", "dequantized"), default="figure8",
                          help="Explicit block dot/scale/accumulate, or the legacy FP32 GEMM")
+        sub.add_argument("--accumulator", choices=ACCUMULATORS, default="fp32",
+                         help="Figure 8 pipeline-register format (sensitivity setting)")
         sub.add_argument("--exponent-overflow", choices=("error", "wrap", "wide"), default="wide",
                          help="Retain mathematical exponent sums by default; error/wrap are sensitivity policies")
         sub.add_argument("--weights-only", action="store_true")

@@ -14,7 +14,7 @@ from torch.utils._python_dispatch import TorchDispatchMode
 
 from .mx9 import (MODES, MXINT_BLOCKS, MX9Config, MX9Tensor, quantize_mx9, quantize_mxint8,
                   flatten_mx9, dequantize, unflatten_mx9)
-from .tensor_core import EXPONENT_POLICIES, figure8_mma
+from .tensor_core import ACCUMULATORS, EXPONENT_POLICIES, figure8_mma
 
 
 class MX9Inference(TorchDispatchMode):
@@ -26,7 +26,7 @@ class MX9Inference(TorchDispatchMode):
     def __init__(self, model, mode="mx9_flattened", config=MX9Config(),
                  weights_only=False, backend="figure8", exponent_overflow="wide",
                  activation_policy="hierarchical", exempt=None, exempt_mode="mx9_hierarchical",
-                 cache_weights=True):
+                 cache_weights=True, accumulator="fp32"):
         super().__init__()
         if mode not in MODES or exempt_mode not in MODES:
             raise ValueError(f"Unknown mode {mode}")
@@ -43,6 +43,13 @@ class MX9Inference(TorchDispatchMode):
         # cannot represent the scaled A/B interface in Figure 8.
         self.backend = "native_fp32" if mode == "fp32" else ("dequantized" if weights_only else backend)
         self.exponent_overflow = exponent_overflow
+        if accumulator not in ACCUMULATORS:
+            raise ValueError(f"Unknown accumulator format {accumulator}")
+        # The native FP32 reference ignores the setting; the dequantized
+        # backend has no pipeline register to round.
+        if accumulator != "fp32" and self.backend == "dequantized":
+            raise ValueError("Accumulator formats other than fp32 need the figure8 backend")
+        self.accumulator = accumulator
         if activation_policy not in ("hierarchical", "fp32"):
             raise ValueError("Unknown activation policy")
         self.activation_policy = "fp32" if mode == "fp32" or weights_only else activation_policy
@@ -122,8 +129,10 @@ class MX9Inference(TorchDispatchMode):
             # is an external epilogue; it is not part of the Figure 8 interface.
             initial = bias * beta if bias is not None and beta != 0 else None
             if alpha == 1:
-                return figure8_mma(a, b, initial, exponent_overflow=self.exponent_overflow)
-            result = figure8_mma(a, b, exponent_overflow=self.exponent_overflow) * alpha
+                return figure8_mma(a, b, initial, exponent_overflow=self.exponent_overflow,
+                                   accumulator=self.accumulator)
+            result = figure8_mma(a, b, exponent_overflow=self.exponent_overflow,
+                                 accumulator=self.accumulator) * alpha
             return result if initial is None else result + initial
         # FP32-exempt layers (H1.1) reach here with plain tensors.
         a = dequantize(a) if isinstance(a, MX9Tensor) else a
@@ -268,7 +277,8 @@ class MX9Inference(TorchDispatchMode):
             "activation_contract": "hierarchical-boundaries-v1" if self.activation_policy == "hierarchical" else "fp32-between-gemms-v1",
             "activation_events": dict(self.activation_events),
             "exponent_overflow": self.exponent_overflow if self.backend == "figure8" else None,
-            "accumulator_dtype": "float32",
+            "accumulator_dtype": {"fp32": "float32", "bf16": "bfloat16", "fp16": "float16",
+                                  "fp32-m14": "float32, mantissa rounded to 14 bits"}[self.accumulator],
             "exempt": self.exempt.pattern if self.exempt else None,
             "exempt_mode": self.exempt_mode, "exempted_calls": dict(self.exempted),
             "coverage": dict(self.coverage),

@@ -8,6 +8,27 @@ from .mx9 import MX9Tensor
 
 
 EXPONENT_POLICIES = ("error", "wrap", "wide")
+# Accumulator formats for the pipeline register. "fp32" is the paper-faithful
+# default; the others are sensitivity settings, not claims about Avant-Garde:
+# BF16/FP16 storage, and FP32 with its mantissa rounded to 14 bits, the kind of
+# reduced-precision accumulation DeepSeek-V3 reports for H800 FP8 tensor cores.
+ACCUMULATORS = ("fp32", "bf16", "fp16", "fp32-m14")
+
+
+def round_accumulator(x, accumulator):
+    """Round an FP32 tensor to the selected accumulator format (nearest-even)."""
+    if accumulator == "fp32":
+        return x
+    if accumulator == "bf16":
+        return x.to(torch.bfloat16).float()
+    if accumulator == "fp16":
+        return x.to(torch.float16).float()
+    if accumulator == "fp32-m14":
+        mantissa, exponent = torch.frexp(x)        # x = mantissa * 2**exponent, |mantissa| in [0.5, 1)
+        # 14 stored mantissa bits plus the implicit bit: 15 significant bits.
+        return torch.ldexp(torch.round(torch.ldexp(mantissa, torch.full_like(exponent, 15))),
+                           exponent - 15)
+    raise ValueError(f"Unknown accumulator format: {accumulator}")
 
 
 def combine_exponents(a, b, overflow="error"):
@@ -38,8 +59,8 @@ def _codes(x):
     return codes, x.outer_exp.squeeze(-1).int(), fractional_bits
 
 
-def figure8_mma(a: MX9Tensor, b: MX9Tensor, c=None, *, exponent_overflow="wide"):
-    """Compute C + A @ B with a separately rounded scale and FP32 accumulator.
+def figure8_mma(a: MX9Tensor, b: MX9Tensor, c=None, *, exponent_overflow="wide", accumulator="fp32"):
+    """Compute C + A @ B with a separately rounded scale and an accumulator (FP32 by default).
 
     Each K block has 16 elements and independent outer scales. Blocks advance
     in increasing K order. Batched operands broadcast as in torch.matmul.
@@ -53,13 +74,16 @@ def figure8_mma(a: MX9Tensor, b: MX9Tensor, c=None, *, exponent_overflow="wide")
         raise ValueError("Operands must be on the same device")
     if exponent_overflow not in EXPONENT_POLICIES:
         raise ValueError(f"Unknown exponent overflow policy: {exponent_overflow}")
+    if accumulator not in ACCUMULATORS:
+        raise ValueError(f"Unknown accumulator format: {accumulator}")
     ac, ae, af = _codes(a)
     bc, be, bf = _codes(b)
     shape = (*torch.broadcast_shapes(a.shape[:-2], b.shape[:-2]), a.shape[-2], b.shape[-1])
     if c is None:
-        accumulator = torch.zeros(shape, dtype=torch.float32, device=ac.device)
+        acc = torch.zeros(shape, dtype=torch.float32, device=ac.device)
     else:
-        accumulator = torch.broadcast_to(c.to(device=ac.device, dtype=torch.float32), shape).clone()
+        acc = round_accumulator(torch.broadcast_to(c.to(device=ac.device, dtype=torch.float32), shape).clone(),
+                                accumulator)
     # Validate the extrema per block once, avoiding a host synchronization for
     # each K block. Rows/columns are independent and every combination is used.
     if exponent_overflow == "error":
@@ -76,5 +100,5 @@ def figure8_mma(a: MX9Tensor, b: MX9Tensor, c=None, *, exponent_overflow="wide")
         # power of two before multiplication. Round the scaling unit output
         # exactly once to FP32, including subnormal results, then add separately.
         scaled = torch.ldexp(dot.double(), exponent - af - bf).float()
-        accumulator = accumulator + scaled
-    return accumulator
+        acc = round_accumulator(acc + round_accumulator(scaled, accumulator), accumulator)
+    return acc

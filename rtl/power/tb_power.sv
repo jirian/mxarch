@@ -27,6 +27,32 @@ module tb_power;
   wire [16*8-1:0] q_op = qa;  wire [7:0] mu_op = mua;
 `endif
 
+  // Sign-magnitude view of the same codes, for the *_sm designs.
+  wire [15:0]     sa, sb;
+  wire [16*7-1:0] ma, mb;
+  genvar gi;
+  generate
+    for (gi = 0; gi < 16; gi = gi + 1) begin : g_sm
+      wire [7:0] ca = qa[8*gi +: 8], cb = qb[8*gi +: 8];
+      wire [7:0] na = -ca, nb = -cb;
+      assign sa[gi] = ca[7];
+      assign sb[gi] = cb[7];
+      assign ma[7*gi +: 7] = ca[7] ? na[6:0] : ca[6:0];
+      assign mb[7*gi +: 7] = cb[7] ? nb[6:0] : cb[6:0];
+    end
+  endgenerate
+  wire [16*7-1:0] fma, fmb, m_op;
+  wire [16*8-1:0] wma, wmb;
+  ot_flat8_sm #(`RND_TRUNC) ref_fma (.m(ma), .mu(mua), .f(fma));
+  ot_flat8_sm #(`RND_TRUNC) ref_fmb (.m(mb), .mu(mub), .f(fmb));
+  ot_wide9_sm ref_wma (.m(ma), .mu(mua), .f(wma));
+  ot_wide9_sm ref_wmb (.m(mb), .mu(mub), .f(wmb));
+`ifdef OPERAND_B
+  assign m_op = mb;
+`else
+  assign m_op = ma;
+`endif
+
 `ifdef DUT_reg_dp_int8
   wire [19:0] out;  localparam integer OUTW = 19;  localparam integer GOLD = 34;  // golden field widths
   reg_dp_int8 dut (.clk(clk), .a_in(fa), .b_in(fb), .sum_out(out));
@@ -36,6 +62,25 @@ module tb_power;
 `elsif DUT_reg_dp_lateshift
   wire [20:0] out;  localparam integer OUTW = 21;  localparam integer GOLD = 37;
   reg_dp_lateshift dut (.clk(clk), .qa_in(qa), .qb_in(qb), .mua_in(mua), .mub_in(mub), .sum_out(out));
+`elsif DUT_reg_dp_sm7
+  wire [18:0] out;  localparam integer OUTW = 19;  localparam integer GOLD = 34;
+  reg_dp_sm7 dut (.clk(clk), .sa_in(sa), .sb_in(sb), .ma_in(fma), .mb_in(fmb), .sum_out(out));
+`elsif DUT_reg_dp_sm8
+  wire [20:0] out;  localparam integer OUTW = 21;  localparam integer GOLD = 37;
+  reg_dp_sm8 dut (.clk(clk), .sa_in(sa), .sb_in(sb), .ma_in(wma), .mb_in(wmb), .sum_out(out));
+`elsif DUT_reg_dp_lateshift_sm
+  wire [20:0] out;  localparam integer OUTW = 21;  localparam integer GOLD = 37;
+  reg_dp_lateshift_sm dut (.clk(clk), .sa_in(sa), .sb_in(sb), .ma_in(ma), .mb_in(mb),
+                           .mua_in(mua), .mub_in(mub), .sum_out(out));
+`elsif DUT_reg_ot_flat8_sm_trunc
+  wire [111:0] out;  localparam integer OUTW = 0;  localparam integer GOLD = 0;
+  reg_ot_flat8_sm_trunc dut (.clk(clk), .m_in(m_op), .mu_in(mu_op), .f_out(out));
+`elsif DUT_reg_ot_flat8_sm_nearest
+  wire [111:0] out;  localparam integer OUTW = 0;  localparam integer GOLD = 0;
+  reg_ot_flat8_sm_nearest dut (.clk(clk), .m_in(m_op), .mu_in(mu_op), .f_out(out));
+`elsif DUT_reg_ot_wide9_sm
+  wire [127:0] out;  localparam integer OUTW = 0;  localparam integer GOLD = 0;
+  reg_ot_wide9_sm dut (.clk(clk), .m_in(m_op), .mu_in(mu_op), .f_out(out));
 `elsif DUT_reg_ot_wide9
   wire [143:0] out;  localparam integer OUTW = 0;  localparam integer GOLD = 0;
   reg_ot_wide9 dut (.clk(clk), .q_in(q_op), .mu_in(mu_op), .f_out(out));

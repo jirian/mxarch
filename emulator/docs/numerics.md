@@ -127,7 +127,12 @@ overflow: for example, `64 * 64 * 2**(-120-10) = 2**-118` is normal FP32.
 wraparound. These remain optional sensitivity policies, **not
 verified author behavior**. Fractional-bit corrections occur after this sum.
 FP32 scale output, FP32 accumulation, separate roundings, and increasing-K
-ordering are explicit reconstruction assumptions. Bit-for-bit equivalence to
+ordering are explicit reconstruction assumptions. `--accumulator` selects a
+sensitivity setting for the pipeline register: `bf16` or `fp16` storage, or
+`fp32-m14` (FP32 with its mantissa rounded to 14 bits, nearest-even, the kind
+of reduced-precision accumulation reported for H800 FP8 tensor cores). Each
+block's scaled output and each running sum are rounded to that format. The
+default `fp32` is unchanged. Bit-for-bit equivalence to
 the authors' hardware requires their arithmetic specification or implementation.
 
 Linear and patch-projection biases initialize `C`. For `addmm`/`baddbmm`,
