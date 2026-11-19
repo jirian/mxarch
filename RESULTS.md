@@ -52,12 +52,56 @@ WikiText-2 perplexities: FP32 9.620, hierarchical 9.606, flattened nearest
 9.729, flattened trunc 9.526. Sources: `eval-rounding-5008194`,
 `moe-rounding-5008245`, `qwen3-8k-trunc-5008246`.
 
-Pending:
-- `eval-rounding-5008194` (running): ARC-Challenge / HellaSwag accuracy.
-  WikiText-2 is also Wikipedia-derived, so accuracy decides whether the
-  truncation drop is a real gain or a bias.
-- `moe-groups-5009532`: H1.1 layer-group breakdown (job 5008245's group stage
-  failed on a bash name clash; full-flattening runs are complete).
+### Task accuracy (Qwen3-8B, `eval-rounding-5008194`, `mc.json`)
+
+ARC-Challenge test (1172) and HellaSwag validation (1000, seed 0), each
+choice scored by log-likelihood, unpadded; difference vs hierarchical MX9 in
+points, paired bootstrap over questions (2,000 resamples).
+
+| Config | ARC acc | ARC acc_norm | HellaSwag acc | HellaSwag acc_norm |
+|---|---|---|---|---|
+| FP32 (absolute) | 55.80 | 56.66 | 56.1 | 76.4 |
+| Hierarchical MX9 (absolute) | 55.12 | 56.48 | 56.1 | 76.5 |
+| Flattened, nearest | -0.43 [-1.62, +0.68] | +0.17 [-0.77, +1.11] | **-0.70 [-1.30, -0.10]** | -0.50 [-1.20, +0.10] |
+| Flattened, trunc | +0.34 [-0.60, +1.37] | **+1.11 [+0.17, +2.13]** | +0.30 [-0.10, +0.80] | +0.50 [-0.20, +1.30] |
+
+Verdict: truncation's perplexity drop does not come with an accuracy loss
+(one metric improves, the rest are within noise); round-to-nearest costs a
+little on HellaSwag. Truncated flattening is at least as good as exact MX9 on
+these tasks.
+
+### H1.1 layer groups on the MoE model (`moe-rounding-5008245`)
+
+One group flattened, everything else hierarchical; 16 windows; ranked on even
+windows, validated on odd (`emulator/scripts/moe_groups_summary.py`).
+
+| Group | Nearest: Delta_PPL | Share of full | Trunc: Delta_PPL |
+|---|---|---|---|
+| Attention products (QK^T, PV) | +1.30 [0.87, 1.75] | 52% | -0.75 [-1.01, -0.50] |
+| Attention projections | +1.04 [0.80, 1.34] | 42% | -0.59 [-0.75, -0.42] |
+| LM head | +0.56 [0.50, 0.63] | 23% | -0.40 [-0.46, -0.34] |
+| Router | +0.09 [-0.12, 0.32] | 4% | +0.09 [-0.06, 0.25] |
+| Experts | -0.23 [-0.36, -0.09] | -9% | +0.55 [0.30, 0.85] |
+| Sum of groups / full | +2.76 / +2.50 | | -1.09 / -1.46 |
+
+The nearest-rounding ranking (attention products, attention projections, LM
+head) is identical on the held-out half. Static policy (flatten experts and
+router, about 47% of per-layer GEMM work at 2k context; keep attention and LM
+head): validation run `moe-policy-5012007` pending.
+
+### Accumulator sensitivity (Figure 8 backend, `acc-gpt2-5009655`, `acc-h3-qwen3-5009656`)
+
+| Model | Rounding | fp32 | fp16 | fp32-m14 | bf16 |
+|---|---|---|---|---|---|
+| GPT-2 S (32 windows) | nearest | +3.69 | +3.64 | +3.56 | +2.53 |
+| GPT-2 S | trunc | +3.76 | +3.70 | +3.78 | **+5.27** |
+| GPT-2 M | nearest | +3.43 | +3.43 | +3.42 | +3.30 |
+| GPT-2 M | trunc | +3.08 | +3.18 | +3.16 | +3.23 |
+| Qwen3-8B (8 windows) | trunc | -0.65 | -0.57 | -0.69 | -1.04 |
+
+FP16 and a 14-bit FP32 mantissa leave the flattening penalty unchanged; BF16
+accumulation shifts it (GPT-2 S trunc +5.3%). Conclusions hold for
+accumulators at least as precise as FP16.
 
 ## 2. Hardware cost of lossless flattening (H1.2)
 
@@ -130,15 +174,26 @@ latency entirely.
 
 Software-scaled MX GEMMs vs plain INT8 on H100: prefill 1.67x (MXINT8) and
 3.96x (MX9); decode (tuned) 1.26x and 2.14x. Scaling overhead is
-instruction-issue bound, not memory bound. Not yet done: H2.1 decode
-attention, H3 prefill residual work, N1 k16 baseline rebuild.
+instruction-issue bound, not memory bound.
+
+**N1 (rejected), `mxgemm-k16-5009676`, `perf/timing_k16.txt`.** NVIDIA's
+immaTensorCoreGemm sample compiles to IMMA.16816 only (4,106 k16, no k32).
+INT8 issued as k16 (mxgemm4 INT8K16, same smem, no more registers, verified
+exact) is only 0-2% slower than k32 INT8 (8% at M=32), so MX9 vs a k16 INT8
+baseline is still 2.11x (M=16) to 3.93x (M=4096). The instruction shape does
+not explain our 2x gap to the paper's 1.93x; the overhead is the CUDA-core
+scaling work. The rerun reproduces the status report (2.12x / 4.00x).
+
+**H3 (eager attention), `acc-h3-qwen3-5009656`.** One Qwen3-8B layer, BF16:
+8k: projections 4.0 ms, attention GEMMs 3.1, softmax 25.3, other 3.4 (35.8 ms);
+32k: 16.5 / 40.4 / 352.9 / 13.2 (423 ms). Residual work f = 0.80-0.96 and the
+bound S = 1.03-1.33x. Caveat: the unfused FP32 softmax dominates and is not
+what serving uses; fused-attention profile `h3-fused-5012008` pending.
 
 ## 4. Open items before the final report
 
-1. Read the three pending jobs; settle the H1 narrative (rounding mode).
-2. Sign-magnitude power (OpenSTA on the cluster).
-3. Run the accumulator sensitivity (`--accumulator bf16|fp16|fp32-m14`;
-   tests pass on kuma).
-4. Decide on H2.1, H3, N1, long generation, MX6/MX4 (cut or run).
+1. MoE static-policy validation (`moe-policy-5012007`) and fused H3
+   (`h3-fused-5012008`), running.
+2. Descope in the report: MX6/MX4, long generation; decide H2.1 after H3.
 5. Fix the report's numerics section: equation (2) says floor; define
    sign-magnitude truncation and round-to-nearest.
