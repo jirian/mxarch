@@ -31,6 +31,8 @@ def ppl(losses, tokens, idx):
 
 def summarize(path):
     d = json.load(open(path))
+    if "runs" not in d:          # e.g. multiple-choice results in the same directory
+        return None
     runs = {r["mode"]: r for r in d["runs"]}
     if not {"mx9_hierarchical", "mx9_flattened"} <= runs.keys():
         return None
