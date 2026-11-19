@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "avant-garde-reproduction"
+version = "0.1.0"
+description = "Numerical software reconstruction of Avant-Garde MX9 flattening"
+requires-python = ">=3.10"
+dependencies = ["torch>=2.2", "transformers>=4.45,<5", "datasets>=2.18", "Pillow>=10", "numpy>=1.24"]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+plot = ["matplotlib>=3.8"]
+
+[project.scripts]
+avant-garde = "avant_garde.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["avant_garde*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
