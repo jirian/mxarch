@@ -5,6 +5,7 @@
 !/RESULTS.md
 !/rtl/
 !/emulator/
+!/perf/
 
 # Generated or third-party files inside rtl/
 /rtl/build/
