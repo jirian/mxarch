@@ -3,6 +3,7 @@
 !/.gitignore
 !/README.md
 !/RESULTS.md
+!/TALK.md
 !/rtl/
 !/emulator/
 !/perf/
