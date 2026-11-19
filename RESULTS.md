@@ -44,7 +44,7 @@ The rounding flip holds beyond the grid (same settings):
 
 | Run | Flatten: nearest | Flatten: trunc |
 |---|---|---|
-| Qwen3-8B 8k, Wikipedia (16 windows) | +1.26 (status report) | -0.74 [-0.93, -0.59] |
+| Qwen3-8B 8k, Wikipedia (16 windows) | +1.26 [1.09, 1.42] | -0.74 [-0.93, -0.59] |
 | Qwen3-8B 2k, WikiText-2 (64 windows) | +1.29 [1.13, 1.44] | -0.83 [-0.95, -0.71] |
 | Qwen3-30B-A3B 2k, Wikipedia (16 windows) | +2.50 [2.10, 2.93] | -1.46 [-1.76, -1.16] |
 

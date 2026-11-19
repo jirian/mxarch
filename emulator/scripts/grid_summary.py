@@ -50,8 +50,10 @@ def summarize(path):
     samples.sort()
     lo, hi = samples[int(0.025 * REPLICATES)], samples[int(0.975 * REPLICATES) - 1]
     cfg = f["config"]
-    return (os.path.basename(path).removesuffix(".json"), f["activation_policy"],
-            cfg.get("flatten_rounding"), f["numerical_backend"], n,
+    # Runs before the merge lack these fields: FP32 activations, dequantized
+    # backend, and one rounding setting for conversion and flattening.
+    return (os.path.basename(path).removesuffix(".json"), f.get("activation_policy", "fp32"),
+            cfg.get("flatten_rounding", cfg.get("rounding")), f.get("numerical_backend", "dequantized"), n,
             h["metrics"]["perplexity"], f["metrics"]["perplexity"], delta, lo, hi)
 
 
