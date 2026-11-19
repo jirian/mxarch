@@ -88,8 +88,8 @@ Per lane, two's complement, 2.5 ns:
 
 Sign-magnitude (MX9's native element encoding), logic area: lane 7,257
 (-17% vs two's-complement INT8), (b) 9,124, (c) 8,951; truncating flattening
-385 per block (a pure shift). Sign-magnitude power: pending (activity files
-recorded, OpenSTA step needs the cluster).
+385 per block (a pure shift). Sign-magnitude power per lane: 3.50 mW (lane),
+4.25 (b), 4.91 (c), truncating flattening 0.21 per block.
 
 Per tensor core (`rtl/analysis/gpu_scaling.py`): 64 lanes (1,024 INT8 MAC/clk)
 and 12 block transformers (an m16n8k32 MMA reads 48 blocks over 4 clocks).
@@ -99,7 +99,13 @@ and 12 block transformers (an m16n8k32 MMA reads 48 blocks over 4 clocks).
 | (a) Avant-Garde, our minimal transformer | +1.9% | +1.7% | +0.10% |
 | (b) 9-bit operands | +23.1% | +19.4% | +1.19% |
 | (c) late shift | +15.1% | +18.0% | +0.77% |
-| (c) late shift, sign-magnitude | +2.7% | pending | +0.14% |
+| (a) Avant-Garde, sign-magnitude | -15.9% | -27.8% | -0.82% |
+| (c) late shift, sign-magnitude | +2.7% | +0.2% | +0.14% |
+
+Same-encoding comparison, the fair one: (c) costs +13.0% area and +16.0%
+power over (a) in two's complement, +22.1% and +38.7% in sign-magnitude. The
+"+2.7%" row compares across encodings: a sign-magnitude lossless tensor core
+costs about as much as today's two's-complement INT8 one.
 
 The SM column assumes tensor cores are ~5% of SM area, inferred from the
 paper's 3.9% (tensor core) and 1.4% (overall) figures; the paper's own Operand
