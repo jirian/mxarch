@@ -135,5 +135,10 @@ penalty (GPT-2 Small with truncation 3.8% -> 5.3%).
 
 **What didn't you do?**
 Long-generation tasks, MX6/MX4, and the decode attention kernel (so the decode
-result covers linear layers only). For prefill, unfused attention leaves
-80-87% of a layer's time outside the GEMMs; fused attention reduces that.
+result covers linear layers only).
+
+**How much of prefill would Avant-Garde actually speed up?**
+With fused attention, norms, RoPE, SiLU and residual adds still take 24-37%
+of a Qwen3-8B layer. So even removing the whole scaling overhead from the
+projection GEMMs gives at most 1.3-1.7x per layer; 2.3-2.8x only if attention
+also runs in MX9.
