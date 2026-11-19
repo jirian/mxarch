@@ -1,0 +1,16 @@
+# Allow-list: only the RTL study, the emulator and top-level docs are tracked.
+/*
+!/.gitignore
+!/README.md
+!/rtl/
+!/emulator/
+
+# Generated or third-party files inside rtl/
+/rtl/build/
+/rtl/syn/out/
+/rtl/lib/*.lib
+/rtl/power/cells_sim.v
+/rtl/abc.history
+*.vcd
+*.vcd.gz
+__pycache__/
