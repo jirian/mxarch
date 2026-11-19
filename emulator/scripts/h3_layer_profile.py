@@ -41,7 +41,7 @@ def rope(x, cos, sin):
     return x * cos + rotated * sin
 
 
-def profile(model, layer_index, seq, chunk, repeats):
+def profile(model, layer_index, seq, chunk, repeats, attention="eager"):
     layer = model.model.layers[layer_index]
     attn, mlp = layer.self_attn, layer.mlp
     cfg = model.config
@@ -65,8 +65,15 @@ def profile(model, layer_index, seq, chunk, repeats):
         k, v = k.repeat_interleave(rep, 1), v.repeat_interleave(rep, 1)
         scale = hd ** -0.5
         out = torch.empty_like(q)
-        t["attn:qk"] = t["softmax"] = t["attn:pv"] = 0.0
-        for s0 in range(0, seq, chunk):
+        if attention == "fused":
+            # Fused attention (FlashAttention backend): Q K^T, softmax and P V in one
+            # kernel, as in production serving; their split is not observable.
+            sdpa = torch.nn.functional.scaled_dot_product_attention
+            t["fused_attn"] = timed(lambda: sdpa(q, k, v, is_causal=True), repeats)
+            out = sdpa(q, k, v, is_causal=True)
+        else:
+            t["attn:qk"] = t["softmax"] = t["attn:pv"] = 0.0
+        for s0 in (range(0, seq, chunk) if attention == "eager" else ()):
             s1 = min(seq, s0 + chunk)
             qc, kc, vc = q[:, :, s0:s1], k[:, :, :s1], v[:, :, :s1]
             mask = torch.ones(s1 - s0, s1, device=dev, dtype=torch.bool).tril(s0)
@@ -103,6 +110,8 @@ def main():
     ap.add_argument("--layer", type=int, default=17)
     ap.add_argument("--seq", type=int, nargs="+", default=[8192, 32768])
     ap.add_argument("--chunk", type=int, default=2048)
+    ap.add_argument("--attention", choices=("eager", "fused"), default="eager",
+                    help="eager: Q K^T, softmax, P V timed separately; fused: one SDPA kernel")
     ap.add_argument("--repeats", type=int, default=5)
     ap.add_argument("--speedups", type=float, nargs="+", default=[1.66, 1.93, 3.96])
     ap.add_argument("--gemm-scale", type=float, nargs="+", default=[1.0, 0.5, 1.98],
@@ -113,13 +122,19 @@ def main():
     torch.backends.cuda.matmul.allow_tf32 = False
     model = AutoModelForCausalLM.from_pretrained(args.model, local_files_only=True,
                                                  torch_dtype=torch.bfloat16).eval().cuda()
-    report = {"model": args.model, "layer": args.layer, "chunk": args.chunk, "results": {}}
+    report = {"model": args.model, "layer": args.layer, "chunk": args.chunk,
+              "attention": args.attention, "results": {}}
     for seq in args.seq:
-        t = profile(model, args.layer, seq, args.chunk, args.repeats)
-        groups = {g: sum(v for k, v in t.items() if k.startswith(g)) for g in ("proj", "attn", "softmax", "other")}
+        t = profile(model, args.layer, seq, args.chunk, args.repeats, args.attention)
+        groups = {g: sum(v for k, v in t.items() if k.startswith(g))
+                  for g in ("proj", "attn", "softmax", "other", "fused_attn")}
         res = {"times_ms": t, "groups_ms": groups, "scenarios": {}}
         for gs in args.gemm_scale:
             proj, att = groups["proj"] * gs, groups["attn"] * gs
+            # Fused attention cannot be split: count it as not accelerated in the
+            # "projections" scenario and as fully accelerated (an upper bound) in
+            # "projections+attention".
+            att += groups["fused_attn"] * gs
             rest = groups["softmax"] + groups["other"]
             total = proj + att + rest
             for label, accel in (("projections", proj), ("projections+attention", proj + att)):
