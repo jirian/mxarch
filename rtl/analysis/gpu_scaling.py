@@ -47,6 +47,37 @@ for name, (lane, ot) in designs.items():
     rel = (lanes + ots) / base_tc - 1
     print(f"{name:50s} {lanes:9,.0f} {ots:8,.0f} {rel:+10.1%} {rel * TC_SHARE_OF_SM:+7.2%}")
 
+# Sign-magnitude encoding (results_sm.tsv): same scaling, own INT lane baseline.
+sm = {}
+with open(os.path.join(HERE, "..", "syn", "orfs", "results_sm.tsv")) as f:
+    for row in csv.DictReader(f, delimiter="\t"):
+        if row["status"] == "ok" and float(row["period_ns"]) == 2.5:
+            sm[row["design"]] = float(row["logic_area_um2"])
+print("\nSign-magnitude encoding (relative to the two's-complement INT8 tensor core):")
+for name, (lane, ot) in {
+        "(a) flatten (trunc) + sign-magnitude lane": (sm["reg_dp_sm7"], sm["reg_ot_flat8_sm_trunc"]),
+        "(a) flatten (nearest) + sign-magnitude lane": (sm["reg_dp_sm7"], sm["reg_ot_flat8_sm_nearest"]),
+        "(b) widen + 8-bit-magnitude lane": (sm["reg_dp_sm8"], sm["reg_ot_wide9_sm"]),
+        "(c) sign-magnitude late shift": (sm["reg_dp_lateshift_sm"], 0.0)}.items():
+    rel = (LANES_PER_TC * lane + OT_PER_TC * ot) / base_tc - 1
+    print(f"{name:50s} {rel:+10.1%} {rel * TC_SHARE_OF_SM:+7.2%} of SM")
+
+# Power from real Qwen3-8B switching activity at 2.5 ns (power/power_real.tsv).
+pw = {}
+with open(os.path.join(HERE, "..", "power", "power_real.tsv")) as f:
+    for row in csv.DictReader(f, delimiter="\t"):
+        pw[row["case"]] = float(row["comb_W"]) * 1e3
+ot_mw = lambda d: (pw[d + "_A"] + pw[d + "_B"]) / 2   # average of the activation and weight streams
+base_p = LANES_PER_TC * pw["reg_dp_int8"]
+print("\nTensor-core logic power from real Qwen3-8B activity (2.5 ns, mW):")
+for name, (lane, ot) in {
+        "(a) flatten (trunc) + INT8 lane": (pw["reg_dp_int8"], ot_mw("reg_ot_flat8_trunc")),
+        "(a) flatten (nearest) + INT8 lane": (pw["reg_dp_int8"], ot_mw("reg_ot_flat8_nearest")),
+        "(b) widen + 9x9 lane": (pw["reg_dp_int9"], ot_mw("reg_ot_wide9")),
+        "(c) late shift": (pw["reg_dp_lateshift"], 0.0)}.items():
+    total = LANES_PER_TC * lane + OT_PER_TC * ot
+    print(f"{name:50s} {total:9.1f} mW {total / base_p - 1:+8.1%}")
+
 late = area["reg_dp_lateshift"] / lane8 - 1
 print(f"\n(c) vs (a), our minimal transformer: {(late - OT_PER_TC * area['reg_ot_flat8_trunc'] / base_tc) * TC_SHARE_OF_SM:+.2%} of SM")
 print(f"(c) vs (a), paper's transformer (1.2% of SM): {late * TC_SHARE_OF_SM - PAPER_OT_SHARE_OF_SM:+.2%} of SM")
