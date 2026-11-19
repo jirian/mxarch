@@ -14,7 +14,7 @@ import torch
 
 from .evaluation import classification, perplexity, token_windows
 from .inference import MX9Inference, configure_fp32
-from .mx9 import MODES, MX9Config
+from .mx9 import DEFAULT_MODES, MODES, MX9Config
 from .uncertainty import add_uncertainty
 
 
@@ -58,7 +58,9 @@ def tiny_vit(args):
     reports, outputs = [], {}
     for mode in args.modes:
         adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits, flatten_rounding=args.flatten_rounding),
-                               args.weights_only, args.backend, args.exponent_overflow, args.activation_policy)
+                               args.weights_only, backend=args.backend, exponent_overflow=args.exponent_overflow,
+                               activation_policy=args.activation_policy, exempt=args.exempt,
+                               exempt_mode=args.exempt_mode)
         with adapter.apply():
             result = model(pixel_values=pixels).logits
         adapter.check_coverage(1)
@@ -78,9 +80,12 @@ def gpt2(args):
                                               local_files_only=args.offline)
     model = AutoModelForCausalLM.from_pretrained(
         args.model, revision=args.revision, local_files_only=args.offline,
-        attn_implementation="eager", torch_dtype=torch.float32).eval().to(args.device)
-    if model.config.model_type != "gpt2":
-        raise ValueError("This runner validates GPT-2 models only")
+        attn_implementation="eager", torch_dtype=torch.float32,
+        device_map=args.device_map).eval()
+    if args.device_map is None:
+        model = model.to(args.device)
+    if model.config.model_type not in ("gpt2", "qwen3", "qwen3_moe"):
+        raise ValueError("This runner validates GPT-2 and Qwen3 (dense, MoE) models only")
     if args.context > model.config.max_position_embeddings:
         raise ValueError("Context exceeds checkpoint positional embedding capacity")
     if args.text_file:
@@ -105,7 +110,9 @@ def gpt2(args):
     for mode in args.modes:
         print(f"GPT-2 {args.model} {mode}: {len(windows)} windows", flush=True)
         adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits, flatten_rounding=args.flatten_rounding),
-                               args.weights_only, args.backend, args.exponent_overflow, args.activation_policy)
+                               args.weights_only, backend=args.backend, exponent_overflow=args.exponent_overflow,
+                               activation_policy=args.activation_policy, exempt=args.exempt,
+                               exempt_mode=args.exempt_mode, cache_weights=not args.no_weight_cache)
         started = time.monotonic()
         with adapter.apply():
             metrics = perplexity(model, windows, args.device)
@@ -161,7 +168,9 @@ def vit(args):
     for mode in args.modes:
         print(f"ViT {args.model} {mode}: {len(rows)} images", flush=True)
         adapter = MX9Inference(model, mode, MX9Config(args.rounding, args.flattened_bits, flatten_rounding=args.flatten_rounding),
-                               args.weights_only, args.backend, args.exponent_overflow, args.activation_policy)
+                               args.weights_only, backend=args.backend, exponent_overflow=args.exponent_overflow,
+                               activation_policy=args.activation_policy, exempt=args.exempt,
+                               exempt_mode=args.exempt_mode)
         with adapter.apply():
             metrics = classification(model, batches(), args.device)
         adapter.check_coverage((len(rows) + args.batch_size - 1) // args.batch_size)
@@ -203,7 +212,7 @@ def parser():
     for name in ("gpt2", "vit", "smoke-vit"):
         sub = commands.add_parser(name)
         sub.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
-        sub.add_argument("--modes", nargs="+", choices=MODES, default=list(MODES))
+        sub.add_argument("--modes", nargs="+", choices=MODES, default=list(DEFAULT_MODES))
         sub.add_argument("--rounding", choices=("even", "nearest", "trunc"), default="even")
         sub.add_argument("--flatten-rounding", choices=("even", "nearest", "trunc"), default="trunc",
                          help="Secondary-scale removal; trunc shifts signed magnitudes toward zero")
@@ -215,6 +224,8 @@ def parser():
         sub.add_argument("--exponent-overflow", choices=("error", "wrap", "wide"), default="wide",
                          help="Retain mathematical exponent sums by default; error/wrap are sensitivity policies")
         sub.add_argument("--weights-only", action="store_true")
+        sub.add_argument("--exempt", help="Regex of module names that use --exempt-mode")
+        sub.add_argument("--exempt-mode", choices=MODES, default="mx9_hierarchical")
         sub.add_argument("--offline", action="store_true")
         sub.add_argument("--seed", type=int, default=0)
         sub.add_argument("--output", required=True)
@@ -225,6 +236,9 @@ def parser():
             sub.add_argument("--revision", default="main")
         if name == "gpt2":
             sub.add_argument("--text-file")
+            sub.add_argument("--device-map", help="e.g. auto: spread a large model over GPUs")
+            sub.add_argument("--no-weight-cache", action="store_true",
+                             help="Re-quantize weights on each use instead of caching them")
             sub.add_argument("--dataset-revision", default="main")
             sub.add_argument("--context", type=int, default=128)
             sub.add_argument("--windows", type=int, default=32)
