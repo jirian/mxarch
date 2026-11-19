@@ -40,14 +40,24 @@ window; `rtl/vectors/power_vectors_stats.json`): 69-82% of activation pairs
 and 67-70% of weight pairs use the finer microexponent, so flattening drops a
 bit from most pairs.
 
+The rounding flip holds beyond the grid (same settings):
+
+| Run | Flatten: nearest | Flatten: trunc |
+|---|---|---|
+| Qwen3-8B 8k, Wikipedia (16 windows) | +1.26 (status report) | -0.74 [-0.93, -0.59] |
+| Qwen3-8B 2k, WikiText-2 (64 windows) | +1.29 [1.13, 1.44] | -0.83 [-0.95, -0.71] |
+| Qwen3-30B-A3B 2k, Wikipedia (16 windows) | +2.50 [2.10, 2.93] | -1.46 [-1.76, -1.16] |
+
+WikiText-2 perplexities: FP32 9.620, hierarchical 9.606, flattened nearest
+9.729, flattened trunc 9.526. Sources: `eval-rounding-5008194`,
+`moe-rounding-5008245`, `qwen3-8k-trunc-5008246`.
+
 Pending:
-- `eval-rounding-5008194`: WikiText-2 perplexity and ARC-Challenge /
-  HellaSwag accuracy under nearest vs trunc. Decides whether the truncation
-  effect is real or tied to the Wikipedia text.
-- `moe-rounding-5008245`: Qwen3-30B-A3B nearest vs trunc, and the H1.1
-  layer-group breakdown (one group flattened at a time).
-- `qwen3-8k-trunc-5008246`: Qwen3-8B 8k with truncation (8k nearest was
-  +1.26% in the status report).
+- `eval-rounding-5008194` (running): ARC-Challenge / HellaSwag accuracy.
+  WikiText-2 is also Wikipedia-derived, so accuracy decides whether the
+  truncation drop is a real gain or a bias.
+- `moe-groups-5009532`: H1.1 layer-group breakdown (job 5008245's group stage
+  failed on a bash name clash; full-flattening runs are complete).
 
 ## 2. Hardware cost of lossless flattening (H1.2)
 
@@ -121,8 +131,8 @@ attention, H3 prefill residual work, N1 k16 baseline rebuild.
 
 1. Read the three pending jobs; settle the H1 narrative (rounding mode).
 2. Sign-magnitude power (OpenSTA on the cluster).
-3. Run the accumulator sensitivity (`--accumulator bf16|fp16|fp32-m14`,
-   new tests in `emulator/tests/test_accumulator.py` still to run).
+3. Run the accumulator sensitivity (`--accumulator bf16|fp16|fp32-m14`;
+   tests pass on kuma).
 4. Decide on H2.1, H3, N1, long generation, MX6/MX4 (cut or run).
 5. Fix the report's numerics section: equation (2) says floor; define
    sign-magnitude truncation and round-to-nearest.
