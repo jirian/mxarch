@@ -188,12 +188,20 @@ scaling work. The rerun reproduces the status report (2.12x / 4.00x).
 8k: projections 4.0 ms, attention GEMMs 3.1, softmax 25.3, other 3.4 (35.8 ms);
 32k: 16.5 / 40.4 / 352.9 / 13.2 (423 ms). Residual work f = 0.80-0.96 and the
 bound S = 1.03-1.33x. Caveat: the unfused FP32 softmax dominates and is not
-what serving uses; fused-attention profile `h3-fused-5012008` pending.
+what serving uses.
+
+**H3 (fused attention), `h3-fused-5012008`.** Same layer with SDPA
+(FlashAttention): 8k: projections 4.0 ms, attention 1.7, other (norms, RoPE,
+SiLU*up, residual adds) 3.4 = 37% (9.2 ms); 32k: 16.0 / 25.1 / 13.2 = 24%
+(54.3 ms). H3 supported (residual work > 10%), though serving engines fuse
+these small operations. Prefill speedup bound vs software-scaled MX9 GEMMs
+(GEMM time x1.98 of BF16): projections only 1.35x (8k) / 1.19x (32k) at
+s = 1.93, 1.67x / 1.33x at s = 3.96; projections + attention at most
+1.59x / 1.71x (s = 1.93) and 2.35x / 2.80x (s = 3.96).
 
 ## 4. Open items before the final report
 
-1. MoE static-policy validation (`moe-policy-5012007`) and fused H3
-   (`h3-fused-5012008`), running.
+1. MoE static-policy validation (`moe-policy-5012007`), running.
 2. Descope in the report: MX6/MX4, long generation; decide H2.1 after H3.
 5. Fix the report's numerics section: equation (2) says floor; define
    sign-magnitude truncation and round-to-nearest.
