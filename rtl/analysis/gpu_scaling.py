@@ -78,6 +78,25 @@ for name, (lane, ot) in {
     total = LANES_PER_TC * lane + OT_PER_TC * ot
     print(f"{name:50s} {total:9.1f} mW {total / base_p - 1:+8.1%}")
 
+print("\nSign-magnitude logic power (relative to the two's-complement INT8 tensor core):")
+for name, (lane, ot) in {
+        "(a) flatten (trunc) + sign-magnitude lane": (pw["reg_dp_sm7"], ot_mw("reg_ot_flat8_sm_trunc")),
+        "(a) flatten (nearest) + sign-magnitude lane": (pw["reg_dp_sm7"], ot_mw("reg_ot_flat8_sm_nearest")),
+        "(b) widen + 8-bit-magnitude lane": (pw["reg_dp_sm8"], ot_mw("reg_ot_wide9_sm")),
+        "(c) sign-magnitude late shift": (pw["reg_dp_lateshift_sm"], 0.0)}.items():
+    total = LANES_PER_TC * lane + OT_PER_TC * ot
+    print(f"{name:50s} {total:9.1f} mW {total / base_p - 1:+8.1%}")
+
+# Same-encoding comparison: what keeping the bit costs over Avant-Garde's lossy design.
+tc_area = lambda lane, ot: LANES_PER_TC * lane + OT_PER_TC * ot
+print("\n(c) late shift vs (a) Avant-Garde (trunc), same encoding:")
+for enc, (ca, aa, cp, ap) in {
+        "two's complement": (tc_area(area["reg_dp_lateshift"], 0), tc_area(lane8, area["reg_ot_flat8_trunc"]),
+                             tc_area(pw["reg_dp_lateshift"], 0), tc_area(pw["reg_dp_int8"], ot_mw("reg_ot_flat8_trunc"))),
+        "sign-magnitude": (tc_area(sm["reg_dp_lateshift_sm"], 0), tc_area(sm["reg_dp_sm7"], sm["reg_ot_flat8_sm_trunc"]),
+                           tc_area(pw["reg_dp_lateshift_sm"], 0), tc_area(pw["reg_dp_sm7"], ot_mw("reg_ot_flat8_sm_trunc")))}.items():
+    print(f"  {enc:18s} area {ca / aa - 1:+6.1%}   power {cp / ap - 1:+6.1%}")
+
 late = area["reg_dp_lateshift"] / lane8 - 1
 print(f"\n(c) vs (a), our minimal transformer: {(late - OT_PER_TC * area['reg_ot_flat8_trunc'] / base_tc) * TC_SHARE_OF_SM:+.2%} of SM")
 print(f"(c) vs (a), paper's transformer (1.2% of SM): {late * TC_SHARE_OF_SM - PAPER_OT_SHARE_OF_SM:+.2%} of SM")
