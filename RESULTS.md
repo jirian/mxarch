@@ -1,7 +1,7 @@
 # Results summary (working notes for the poster and final report)
 
-State as of 2026-11-19. Each number names the file it comes from. Pending runs
-are marked; nothing here is final until those land.
+State as of 2026-11-20, all experiments complete. Each number names the file it
+comes from; run outputs are archived in `results/`.
 
 ## 1. Accuracy: flattening penalty (H1)
 
