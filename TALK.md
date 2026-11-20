@@ -126,8 +126,10 @@ flattening stage.
 **What about the MoE model?**
 The loss under round-to-nearest sits in attention products (52%), attention
 projections (42%) and the LM head (23%); flattening only the experts is
-harmless. So a static policy can flatten the experts and router, about 47% of
-the GEMM work, and keep attention exact.
+harmless. We validated the static policy: flatten only the experts and router
+(47% of the GEMM work), keep attention and the LM head exact, and the loss is
+gone (-0.28%, also on held-out windows). Under truncation it's the other way
+round (experts hurt, +0.60%), so the right split depends on the rounding too.
 
 **Does accumulator precision matter?**
 FP16 or a 14-bit FP32 mantissa change nothing; BF16 accumulation shifts the

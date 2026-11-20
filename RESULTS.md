@@ -86,8 +86,16 @@ windows, validated on odd (`emulator/scripts/moe_groups_summary.py`).
 
 The nearest-rounding ranking (attention products, attention projections, LM
 head) is identical on the held-out half. Static policy (flatten experts and
-router, about 47% of per-layer GEMM work at 2k context; keep attention and LM
-head): validation run `moe-policy-5012007` pending.
+router, 47.4% of per-token GEMM work at 2k context per the model config; keep
+attention and LM head), `moe-policy-5012007`:
+
+| Rounding | All 16 windows | Held-out odd windows |
+|---|---|---|
+| nearest | -0.28 [-0.47, -0.11] | -0.31 [-0.66, +0.01] |
+| trunc | +0.60 [0.37, 0.81] | +0.67 [0.45, 0.91] |
+
+Validated for round-to-nearest (no loss); fails under truncation, where the
+experts are the group that hurts.
 
 ### Accumulator sensitivity (Figure 8 backend, `acc-gpt2-5009655`, `acc-h3-qwen3-5009656`)
 
@@ -201,7 +209,6 @@ s = 1.93, 1.67x / 1.33x at s = 3.96; projections + attention at most
 
 ## 4. Open items before the final report
 
-1. MoE static-policy validation (`moe-policy-5012007`), running.
 2. Descope in the report: MX6/MX4, long generation; decide H2.1 after H3.
 5. Fix the report's numerics section: equation (2) says floor; define
    sign-magnitude truncation and round-to-nearest.

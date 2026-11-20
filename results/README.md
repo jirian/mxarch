@@ -7,7 +7,7 @@ copied from `/work/cs-471/mixedprecisionarchitects/avant-garde/runs/`.
 `git-commit.txt` naming the emulator commit it ran (cluster runs from
 2026-11-19 on name `4aae500`, which is `e98fc57` in this repository).
 
-The two MoE directories (`qwen3-moe-4871872`, `moe-rounding-5008245`) were
+The three MoE directories (`qwen3-moe-4871872`, `moe-rounding-5008245`, `moe-policy-5012007`) were
 slimmed: per-module diagnostics, coverage and exemption counters (tens of MB
 per file) are removed; metrics, per-window losses, confidence intervals and
 configuration are kept (see `SLIMMED.txt` there).

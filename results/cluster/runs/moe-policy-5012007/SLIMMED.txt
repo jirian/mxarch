@@ -1,0 +1,2 @@
+JSON files here drop the per-module diagnostics, coverage and exempted_calls fields
+(tens of MB each). Metrics, per-window losses, uncertainty and configuration are kept.
