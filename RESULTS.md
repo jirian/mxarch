@@ -207,8 +207,9 @@ these small operations. Prefill speedup bound vs software-scaled MX9 GEMMs
 s = 1.93, 1.67x / 1.33x at s = 3.96; projections + attention at most
 1.59x / 1.71x (s = 1.93) and 2.35x / 2.80x (s = 3.96).
 
-## 4. Open items before the final report
+## 4. Status
 
-2. Descope in the report: MX6/MX4, long generation; decide H2.1 after H3.
-5. Fix the report's numerics section: equation (2) says floor; define
-   sign-magnitude truncation and round-to-nearest.
+All experiments are done. Descoped in the report: long-generation tasks,
+MX6/MX4, the decode-attention kernel (H2.1). Remaining before submission:
+repository link in the report and poster (sharing decision), team review,
+poster printing.
